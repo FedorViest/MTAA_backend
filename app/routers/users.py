@@ -7,6 +7,11 @@ router = APIRouter(
 )
 
 
-@router.get("/registration", response_model=UserRegisterOut)
+@router.post("/registration", response_model=UserRegisterOut)
 def penis(registration: UserRegisterIn):
     return registration
+
+
+@router.get("/login", response_model=UserLoginOut)
+def user_login(login_details: UserLoginIn):
+    return login_details

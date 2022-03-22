@@ -15,3 +15,18 @@ class UserRegisterOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class UserLoginIn(BaseModel):
+    username: str
+    password: str
+
+    class Config:
+        orm_mode = True
+
+
+class UserLoginOut(BaseModel):
+    username: str
+
+    class Config:
+        orm_mode = True
