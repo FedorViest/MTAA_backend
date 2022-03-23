@@ -27,15 +27,6 @@ class UserLoginOut(BaseModel):
         orm_mode = True
 
 
-class AllRatingsOut(BaseModel):
-    id: int
-    rating: float
-    comment: str
-
-    class Config:
-        orm_mode = True
-
-
 class OrdersOut(BaseModel):
     id: int
     state: str
