@@ -51,3 +51,10 @@ def post_computer(computer_details: AddComputerIn, db_conn: Session = Depends(co
     db_conn.refresh(new_computer)
 
     return new_computer
+
+
+@router.get("/getComputers", response_model=List[GetComputersOut])
+def get_computers(db_conn: Session = Depends(connect_to_db)):
+    result = db_conn.query(Computers).all()
+
+    return result
