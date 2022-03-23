@@ -1,7 +1,6 @@
 from typing import List
-from fastapi.exceptions import HTTPException
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from app.schemas.admin import *
 from app.database import connect_to_db
 from sqlalchemy.orm import Session
@@ -31,7 +30,7 @@ def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(co
     print(employee_details.email)
 
     if not utils.email_valid(employee_details.email):
-        raise HTTPException(status_code=400, detail="Invalid email")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid email")
 
     new_user = Users(name=employee_details.name, password=employee_details.password, email=employee_details.email)
 

@@ -10,4 +10,9 @@ def email_valid(email: str):
         return True
     return False
 
+
+def password_check(password, password_db):
+    return pwd_context.verify(password, password_db)
+
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
