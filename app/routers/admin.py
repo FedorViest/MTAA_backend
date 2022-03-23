@@ -1,6 +1,8 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
+
+from app import oauth
 from app.schemas.admin import *
 from app.database import connect_to_db
 from sqlalchemy.orm import Session
@@ -14,6 +16,8 @@ router = APIRouter(
     tags=["Admin"]
 )
 
+# get_current_user: int = Depends(oauth.get_user)
+
 
 @router.get("/getRatings", response_model=AllRatingsOut)
 def all_ratings(db_conn: Session = Depends(connect_to_db)):
@@ -23,7 +27,8 @@ def all_ratings(db_conn: Session = Depends(connect_to_db)):
 
 
 @router.post("/addEmployee", response_model=AddEmployeeOut)
-def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(connect_to_db)):
+def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(connect_to_db),
+                  get_current_user: int = Depends(oauth.get_user)):
     hashed_password = pwd_context.hash(employee_details.password)
     employee_details.password = hashed_password
 
