@@ -40,3 +40,14 @@ def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(co
     db_conn.refresh(new_employee)
 
     return new_user
+
+
+@router.post("/addComputer", response_model=AddComputerOut)
+def post_computer(computer_details: AddComputerIn, db_conn: Session = Depends(connect_to_db)):
+    new_computer = Computers(**computer_details.dict())
+
+    db_conn.add(new_computer)
+    db_conn.commit()
+    db_conn.refresh(new_computer)
+
+    return new_computer
