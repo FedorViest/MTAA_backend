@@ -34,6 +34,8 @@ class Employees(Base):
 
     id = Column(Integer, nullable=False, primary_key=True)
     users_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    position = Column(VARCHAR(20))
+    skills = Column(VARCHAR)
 
 
 class Ratings(Base):
@@ -53,6 +55,6 @@ class Orders(Base):
     customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False)
     employee_id = Column(Integer, ForeignKey("employees.id"), nullable=False)
     pc_id = Column(Integer, ForeignKey("computers.id"), nullable=False)
-    date = Column(TIMESTAMP(timezone=True), server_default=text('CURRENT_TIMESTAMP'))
+    date_created = Column(TIMESTAMP(timezone=True), server_default=text('CURRENT_TIMESTAMP'))
     status = Column(VARCHAR(20))
     issue = Column(VARCHAR(100))

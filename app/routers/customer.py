@@ -4,6 +4,7 @@ from app.database import connect_to_db
 from sqlalchemy.orm import Session
 from app.utils import *
 from app.models import *
+from sqlalchemy import and_
 
 router = APIRouter(
     prefix="/customer",
@@ -43,3 +44,22 @@ def all_orders(conn_db: Session = Depends(connect_to_db)):
 def display_order(order: OneOrderIn):
     # TODO - query
     return None
+
+
+@router.post("/addOrder")
+def post_order(order_details: AddOrderIn, db_conn: Session = Depends(connect_to_db)):
+    customer_id = db_conn.query(Customers.id).join(Users).filter(Users.email == order_details.customer_email).first()
+    employee_id = db_conn.query(Employees.id).join(Users).filter(Users.email == order_details.employee_email).first()
+    pc_id = db_conn.query(Computers.id).filter(and_(Computers.brand == order_details.pc_brand, Computers.model == order_details.pc_model, Computers.year_made == order_details.pc_year)).first()
+
+    customer_id = customer_id["id"]
+    pc_id = pc_id["id"]
+    employee_id = employee_id["id"]
+
+    new_order = Orders(customer_id=customer_id, employee_id=employee_id, pc_id=pc_id, status=order_details.status, issue=order_details.issue)
+
+    db_conn.add(new_order)
+    db_conn.commit()
+    db_conn.refresh(new_order)
+
+    return new_order
