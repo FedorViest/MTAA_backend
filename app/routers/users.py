@@ -31,4 +31,4 @@ def login(user_login_info: OAuth2PasswordRequestForm = Depends(), db_conn: Sessi
 
     access_token = oauth.create_token(data={"id": user.id})
 
-    return {"token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer"}

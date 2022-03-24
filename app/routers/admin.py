@@ -29,7 +29,7 @@ def all_ratings(db_conn: Session = Depends(connect_to_db)):
 
 @router.post("/addEmployee", response_model=AddEmployeeOut)
 def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(connect_to_db),
-                  current_user: Session = Depends(oauth.get_user)):
+                  current_user: int = Depends(oauth.get_user)):
 
     if current_user.position != "admin":
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Unauthorized user for this operation")
