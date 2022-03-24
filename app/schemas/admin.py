@@ -48,3 +48,19 @@ class GetComputersOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class UpdateEmpolyeeIn(BaseModel):
+    name: str
+    password: str
+    email: str
+    skills: str
+
+
+class UpdateEmployeeOut(BaseModel):
+    name: str
+    email: str
+    skills: str
+
+    class Config:
+        orm_mode = True

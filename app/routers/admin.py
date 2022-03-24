@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.models import *
 from app.utils import pwd_context
 import app.utils as utils
+from sqlalchemy import and_
 
 
 router = APIRouter(
@@ -60,10 +61,17 @@ def get_computers(db_conn: Session = Depends(connect_to_db)):
 
     return result
 
-@router.put("/changeEmployee/{id}")
-def change_employee(id, db_conn: Session = Depends(connect_to_db), get_current_user: int = Depends(oauth.get_user)):
-    #db_conn.query(User). \
-    #    filter(User.username == form.username.data). \
-    #    update({'no_of_logins': User.no_of_logins + 1})
-    #db_conn.commit()
-    return None
+
+@router.put("/changeEmployee/{email}", response_model=UpdateEmployeeOut)
+def change_employee(employee_info: UpdateEmpolyeeIn, db_conn: Session = Depends(connect_to_db)):
+
+    query_result = db_conn.query(Users).filter(and_(Users.email == employee_info.email,
+                                                    Users.position == 'technician'))
+
+    if not query_result:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    query_result.update(employee_info.dict())
+    db_conn.commit()
+
+    return employee_info.dict()
