@@ -5,6 +5,7 @@ class UserRegisterIn(BaseModel):
     name: str
     password: str
     email: str
+    position: str = "customer"
 
 
 class UserRegisterOut(BaseModel):

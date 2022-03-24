@@ -23,14 +23,6 @@ def register(user_credentials: UserRegisterIn, db_conn: Session = Depends(connec
     db_conn.commit()
     db_conn.refresh(new_user)
 
-    user_id = db_conn.query(Users.id).filter(Users.email == user_credentials.email).scalar()
-
-    new_customer = Customers(users_id=user_id)
-
-    db_conn.add(new_customer)
-    db_conn.commit()
-    db_conn.refresh(new_customer)
-
     return new_user
 
 
@@ -48,9 +40,15 @@ def display_order(order: OneOrderIn):
 
 @router.post("/addOrder")
 def post_order(order_details: AddOrderIn, db_conn: Session = Depends(connect_to_db)):
-    customer_id = db_conn.query(Customers.id).join(Users).filter(Users.email == order_details.customer_email).first()
-    employee_id = db_conn.query(Employees.id).join(Users).filter(Users.email == order_details.employee_email).first()
-    pc_id = db_conn.query(Computers.id).filter(and_(Computers.brand == order_details.pc_brand, Computers.model == order_details.pc_model, Computers.year_made == order_details.pc_year)).first()
+    customer_id = db_conn.query(Users.id).filter(and_(Users.email == order_details.customer_email,
+                                                      Users.position == "customer")).first()
+
+    employee_id = db_conn.query(Users.id).filter(and_(Users.email == order_details.employee_email,
+                                                      Users.position == "technician")).first()
+
+    pc_id = db_conn.query(Computers.id).filter(and_(Computers.brand == order_details.pc_brand,
+                                                    Computers.model == order_details.pc_model,
+                                                    Computers.year_made == order_details.pc_year)).first()
 
     customer_id = customer_id["id"]
     pc_id = pc_id["id"]

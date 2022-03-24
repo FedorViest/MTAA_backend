@@ -27,29 +27,18 @@ def all_ratings(db_conn: Session = Depends(connect_to_db)):
 
 
 @router.post("/addEmployee", response_model=AddEmployeeOut)
-def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(connect_to_db),
-                  get_current_user: int = Depends(oauth.get_user)):
+def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(connect_to_db)):
     hashed_password = pwd_context.hash(employee_details.password)
     employee_details.password = hashed_password
-
-    print(employee_details.email)
 
     if not utils.email_valid(employee_details.email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid email")
 
-    new_user = Users(name=employee_details.name, password=employee_details.password, email=employee_details.email)
+    new_user = Users(**employee_details.dict())
 
     db_conn.add(new_user)
     db_conn.commit()
     db_conn.refresh(new_user)
-
-    employee_id = db_conn.query(Users.id).filter(Users.email == employee_details.email).scalar()
-
-    new_employee = Employees(users_id=employee_id, position=employee_details.position, skills=employee_details.skills)
-
-    db_conn.add(new_employee)
-    db_conn.commit()
-    db_conn.refresh(new_employee)
 
     return new_user
 
@@ -70,3 +59,11 @@ def get_computers(db_conn: Session = Depends(connect_to_db)):
     result = db_conn.query(Computers).all()
 
     return result
+
+@router.put("/changeEmployee/{id}")
+def change_employee(id, db_conn: Session = Depends(connect_to_db), get_current_user: int = Depends(oauth.get_user)):
+    #db_conn.query(User). \
+    #    filter(User.username == form.username.data). \
+    #    update({'no_of_logins': User.no_of_logins + 1})
+    #db_conn.commit()
+    return None
