@@ -17,9 +17,11 @@ router = APIRouter(
 # get_current_user: int = Depends(oauth.get_user)
 
 @router.post("/login")
-def login(user_login_info: UserLoginIn, db_conn: Session = Depends(connect_to_db)):
+def login(user_login_info: OAuth2PasswordRequestForm = Depends(), db_conn: Session = Depends(connect_to_db)):
 
-    user = db_conn.query(Users).filter(Users.email == user_login_info.email).first()
+    print(user_login_info.username)
+
+    user = db_conn.query(Users).filter(Users.email == user_login_info.username).first()
 
     if not user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid login details")
