@@ -17,7 +17,7 @@ router = APIRouter(
     tags=["Admin"]
 )
 
-# get_current_user: int = Depends(oauth.get_user)
+# current_user: int = Depends(oauth.get_user)
 
 
 @router.get("/getRatings", response_model=AllRatingsOut)
@@ -28,9 +28,16 @@ def all_ratings(db_conn: Session = Depends(connect_to_db)):
 
 
 @router.post("/addEmployee", response_model=AddEmployeeOut)
-def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(connect_to_db)):
+def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(connect_to_db),
+                  current_user: Session = Depends(oauth.get_user)):
+
+    if current_user.position != "admin":
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Unauthorized user for this operation")
+
     hashed_password = pwd_context.hash(employee_details.password)
     employee_details.password = hashed_password
+
+    # print("Email:" + current_user.email + " Position:" + current_user.position)
 
     if not utils.email_valid(employee_details.email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid email")
