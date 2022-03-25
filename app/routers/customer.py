@@ -55,7 +55,7 @@ def post_order(order_details: AddOrderIn, db_conn: Session = Depends(connect_to_
                                                       Users.position == "customer")).first()
 
     employee_id = db_conn.query(Users.id).filter(and_(Users.email == order_details.employee_email,
-                                                      Users.position == "technician")).first()
+                                                      Users.position == "employee")).first()
 
     pc_id = db_conn.query(Computers.id).filter(and_(Computers.brand == order_details.pc_brand,
                                                     Computers.model == order_details.pc_model,
