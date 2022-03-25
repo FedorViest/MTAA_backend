@@ -37,6 +37,9 @@ def update_order(order_info: updateOrderStateIn, order_id: int, db_conn: Session
 def get_repairs(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
     utils.validate_user(current_user, "employee")
 
-    query = db_conn.query(Orders).filter(current_user.id == Orders.employee_id).all()
+    query_result = db_conn.query(Orders).filter(current_user.id == Orders.employee_id).all()
 
-    return query
+    if not query_result:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="You do not have any repairs")
+
+    return query_result
