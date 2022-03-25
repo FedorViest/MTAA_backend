@@ -18,6 +18,8 @@ router = APIRouter(
 
 @router.post("/registration", response_model=UserRegisterOut)
 def register(user_credentials: UserRegisterIn, db_conn: Session = Depends(connect_to_db)):
+
+
     hashed_password = pwd_context.hash(user_credentials.password)
     user_credentials.password = hashed_password
 
@@ -33,8 +35,7 @@ def register(user_credentials: UserRegisterIn, db_conn: Session = Depends(connec
 @router.get("/getOrders", response_model=List[EmployeeNameOut])
 def all_orders(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
 
-    if current_user.position != "customer":
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail='Unauthorized user for this operation')
+    validate_user(current_user, "customer")
 
     db_conn.query(Orders)
 
@@ -49,7 +50,11 @@ def all_orders(db_conn: Session = Depends(connect_to_db), current_user: Users = 
 
 
 @router.post("/addOrder")
-def post_order(order_details: AddOrderIn, db_conn: Session = Depends(connect_to_db)):
+def post_order(order_details: AddOrderIn, db_conn: Session = Depends(connect_to_db),
+               current_user: Users = Depends(oauth.get_user)):
+
+    validate_user(current_user, "customer")
+
     customer_id = db_conn.query(Users.id).filter(and_(Users.email == order_details.customer_email,
                                                       Users.position == "customer")).first()
 
@@ -78,8 +83,7 @@ def post_order(order_details: AddOrderIn, db_conn: Session = Depends(connect_to_
 def get_orders(order_id: int, db_conn: Session = Depends(connect_to_db),
                current_user: Users = Depends(oauth.get_user)):
 
-    if current_user.position != "customer":
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail='Unauthorized user for this operation')
+    validate_user(current_user, "customer")
 
     query_result = db_conn.query(Orders, Users.name.label("employee_name")).\
         join(Users, Users.id == Orders.employee_id, isouter=True).\
