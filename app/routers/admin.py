@@ -31,8 +31,7 @@ def all_ratings(db_conn: Session = Depends(connect_to_db)):
 def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(connect_to_db),
                   current_user: Users = Depends(oauth.get_user)):
 
-    if current_user.position != "admin":
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Unauthorized user for this operation")
+    utils.validate_user(current_user, "admin")
 
     hashed_password = pwd_context.hash(employee_details.password)
     employee_details.password = hashed_password
@@ -82,3 +81,8 @@ def change_employee(employee_info: UpdateEmpolyeeIn, db_conn: Session = Depends(
     db_conn.commit()
 
     return employee_info.dict()
+
+
+@router.delete("/deleteEmployee")
+def delete_employee():
+    return None
