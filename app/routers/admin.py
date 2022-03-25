@@ -16,6 +16,7 @@ router = APIRouter(
     tags=["Admin"]
 )
 
+
 # current_user: int = Depends(oauth.get_user)
 
 
@@ -99,3 +100,32 @@ def delete_employee(email, db_conn: Session = Depends(connect_to_db),
     db_conn.commit()
 
     return None
+
+
+@router.put("/assignEmployee/{email}/{order_id}", response_model=UpdateOrderOut)
+def assign_employee(email: str, order_id: int, db_conn: Session = Depends(connect_to_db),
+                    current_user: Users = Depends(oauth.get_user)):
+    utils.validate_user(current_user, "admin")
+
+    result_query_employees = db_conn.query(Users.id).filter(and_(Users.email == email,
+                                                                 Users.position == "employee"))
+
+    query_check = result_query_employees.first()
+
+    if not query_check:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail='Specified order or email not found')
+
+    result_query_orders = db_conn.query(Orders).filter(Orders.id == order_id)
+
+    query_check = result_query_orders.first()
+
+    if not query_check:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail='Specified order or email not found')
+
+    result = result_query_orders.first()
+
+    result_query_orders.update({"employee_id": result_query_employees})
+
+    db_conn.commit()
+
+    return result

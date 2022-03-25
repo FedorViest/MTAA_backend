@@ -64,3 +64,15 @@ class UpdateEmployeeOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class UpdateOrderOut(BaseModel):
+    id: int
+    customer_id: int
+    employee_id: int
+    status: str
+    issue: str
+
+    class Config:
+        orm_mode = True
+
