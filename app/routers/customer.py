@@ -18,8 +18,6 @@ router = APIRouter(
 
 @router.post("/registration", response_model=UserRegisterOut)
 def register(user_credentials: UserRegisterIn, db_conn: Session = Depends(connect_to_db)):
-
-
     hashed_password = pwd_context.hash(user_credentials.password)
     user_credentials.password = hashed_password
 
@@ -82,11 +80,10 @@ def post_order(order_details: AddOrderIn, db_conn: Session = Depends(connect_to_
 @router.post("/getOrders/{order_id}", response_model=EmployeeNameOut)
 def get_orders(order_id: int, db_conn: Session = Depends(connect_to_db),
                current_user: Users = Depends(oauth.get_user)):
-
     validate_user(current_user, "customer")
 
-    query_result = db_conn.query(Orders, Users.name.label("employee_name")).\
-        join(Users, Users.id == Orders.employee_id, isouter=True).\
+    query_result = db_conn.query(Orders, Users.name.label("employee_name")). \
+        join(Users, Users.id == Orders.employee_id, isouter=True). \
         filter(and_(Orders.id == order_id, current_user.id == Orders.customer_id)).first()
 
     if not query_result:
@@ -95,3 +92,27 @@ def get_orders(order_id: int, db_conn: Session = Depends(connect_to_db),
     print(query_result)
 
     return query_result
+
+
+@router.post("/addRating", response_model=AddRatingOut)
+def post_rating(rating_details: AddRatingIn, db_conn: Session = Depends(connect_to_db),
+                current_user: Users = Depends(oauth.get_user)):
+
+    validate_user(current_user, "customer")
+
+    customer_id = db_conn.query(Users.id).filter(and_(Users.email == rating_details.customer_email,
+                                                      Users.position == "customer")).first()
+
+    employee_id = db_conn.query(Users.id).filter(and_(Users.email == rating_details.employee_email,
+                                                      Users.position == "technician")).first()
+
+    customer_id = customer_id["id"]
+    employee_id = employee_id["id"]
+
+    new_rating = Ratings(customer_id=customer_id, employee_id=employee_id, rating=rating_details.rating_stars, comment=rating_details.comment)
+
+    db_conn.add(new_rating)
+    db_conn.commit()
+    db_conn.refresh(new_rating)
+
+    return new_rating

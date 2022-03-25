@@ -64,3 +64,20 @@ class AddOrderOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class AddRatingIn(BaseModel):
+    customer_email: str
+    employee_email: str
+    rating_stars: float
+    comment: str
+
+
+class AddRatingOut(BaseModel):
+    customer_id: str
+    employee_id: str
+    rating: float
+    comment: str
+
+    class Config:
+        orm_mode = True
