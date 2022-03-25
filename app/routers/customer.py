@@ -77,13 +77,19 @@ def post_order(order_details: AddOrderIn, db_conn: Session = Depends(connect_to_
     return new_order
 
 
-@router.post("/getOrders/{order_id}", response_model=EmployeeNameOut)
+@router.get("/getOrders/{order_id}", response_model=EmployeeNameOut)
 def get_orders(order_id: int, db_conn: Session = Depends(connect_to_db),
                current_user: Users = Depends(oauth.get_user)):
     validate_user(current_user, "customer")
 
-    query_result = db_conn.query(Orders, Users.name.label("employee_name")). \
-        join(Users, Users.id == Orders.employee_id, isouter=True). \
+    user_employee = aliased(Users)
+    user_customer = aliased(Users)
+
+    query_result = db_conn.query(Orders, Computers, user_employee.name.label("employee_name"),
+                                 user_customer.email.label("user_email")). \
+        join(Computers, Computers.id == Orders.pc_id). \
+        join(user_employee, user_employee.id == Orders.employee_id, isouter=True). \
+        join(user_customer, user_customer.id == Orders.customer_id). \
         filter(and_(Orders.id == order_id, current_user.id == Orders.customer_id)).first()
 
     if not query_result:

@@ -40,9 +40,19 @@ class OrderOut(BaseModel):
         orm_mode = True
 
 
+class ComputerOut(BaseModel):
+    brand: str
+    model: str
+
+    class Config:
+        orm_mode = True
+
+
 class EmployeeNameOut(BaseModel):
     Orders: OrderOut
+    Computers: ComputerOut
     employee_name: str
+    user_email: str
 
     class Config:
         orm_mode = True
