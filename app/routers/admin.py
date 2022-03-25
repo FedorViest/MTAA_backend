@@ -11,7 +11,6 @@ from app.utils import pwd_context
 import app.utils as utils
 from sqlalchemy import and_
 
-
 router = APIRouter(
     prefix="/admin",
     tags=["Admin"]
@@ -22,7 +21,6 @@ router = APIRouter(
 
 @router.get("/getRatings", response_model=AllRatingsOut)
 def all_ratings(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
-
     utils.validate_user(current_user, "admin")
 
     result = db_conn.query(Ratings).all()
@@ -33,7 +31,6 @@ def all_ratings(db_conn: Session = Depends(connect_to_db), current_user: Users =
 @router.post("/addEmployee", response_model=AddEmployeeOut)
 def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(connect_to_db),
                   current_user: Users = Depends(oauth.get_user)):
-
     utils.validate_user(current_user, "admin")
 
     hashed_password = pwd_context.hash(employee_details.password)
@@ -56,7 +53,6 @@ def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(co
 @router.post("/addComputer", response_model=AddComputerOut)
 def post_computer(computer_details: AddComputerIn, db_conn: Session = Depends(connect_to_db),
                   current_user: Users = Depends(oauth.get_user)):
-
     utils.validate_user(current_user, "admin")
 
     new_computer = Computers(**computer_details.dict())
@@ -70,7 +66,6 @@ def post_computer(computer_details: AddComputerIn, db_conn: Session = Depends(co
 
 @router.get("/getComputers", response_model=List[GetComputersOut])
 def get_computers(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
-
     utils.validate_user(current_user, "admin")
 
     result = db_conn.query(Computers).all()
@@ -81,7 +76,6 @@ def get_computers(db_conn: Session = Depends(connect_to_db), current_user: Users
 @router.put("/changeEmployee/{email}", response_model=UpdateEmployeeOut)
 def change_employee(employee_info: UpdateEmpolyeeIn, db_conn: Session = Depends(connect_to_db),
                     current_user: Users = Depends(oauth.get_user)):
-
     utils.validate_user(current_user, "admin")
 
     query_result = db_conn.query(Users).filter(and_(Users.email == employee_info.email,
@@ -99,7 +93,6 @@ def change_employee(employee_info: UpdateEmpolyeeIn, db_conn: Session = Depends(
 @router.delete("/deleteEmployee/{email}")
 def delete_employee(email, db_conn: Session = Depends(connect_to_db),
                     current_user: Users = Depends(oauth.get_user)):
-
     utils.validate_user(current_user, "admin")
 
     db_conn.query(Users).filter(Users.email == email).delete()
