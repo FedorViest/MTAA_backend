@@ -1,3 +1,5 @@
+import datetime
+
 from pydantic import BaseModel
 
 
@@ -28,17 +30,22 @@ class UserLoginOut(BaseModel):
         orm_mode = True
 
 
-class OrdersOut(BaseModel):
+class OrderOut(BaseModel):
     id: int
-    state: str
-    problem: str
+    status: str
+    date_created: datetime.datetime
+    issue: str
 
     class Config:
         orm_mode = True
 
 
-class OneOrderIn(BaseModel):
-    id: int
+class EmployeeNameOut(BaseModel):
+    Orders: OrderOut
+    employee_name: str
+
+    class Config:
+        orm_mode = True
 
 
 class AddOrderIn(BaseModel):
