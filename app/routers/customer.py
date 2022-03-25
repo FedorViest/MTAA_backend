@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
+
+from app import oauth
 from app.schemas.customer import *
 from app.database import connect_to_db
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from app.utils import *
 from app.models import *
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 
 router = APIRouter(
     prefix="/customer",
@@ -54,10 +56,29 @@ def post_order(order_details: AddOrderIn, db_conn: Session = Depends(connect_to_
     pc_id = pc_id["id"]
     employee_id = employee_id["id"]
 
-    new_order = Orders(customer_id=customer_id, employee_id=employee_id, pc_id=pc_id, status=order_details.status, issue=order_details.issue)
+    new_order = Orders(customer_id=customer_id, employee_id=employee_id, pc_id=pc_id, status=order_details.status,
+                       issue=order_details.issue)
 
     db_conn.add(new_order)
     db_conn.commit()
     db_conn.refresh(new_order)
 
     return new_order
+
+# response_model=EmployeeNameOut
+@router.post("/getOrders/{order_id}", response_model=EmployeeNameOut)
+def get_orders(order_id: int, db_conn: Session = Depends(connect_to_db),
+               current_user: Users = Depends(oauth.get_user)):
+    if current_user.position != "customer":
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail='Unauthorized user for this operation')
+
+    query_result = db_conn.query(Orders, Users.name.label("employee_name")).\
+        join(Users, Users.id == Orders.employee_id, isouter=True).\
+        filter(and_(Orders.id == order_id, current_user.id == Orders.customer_id)).first()
+
+    if not query_result:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Order not found")
+
+    print(query_result)
+
+    return query_result

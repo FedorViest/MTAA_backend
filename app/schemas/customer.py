@@ -1,3 +1,5 @@
+import datetime
+
 from pydantic import BaseModel
 
 
@@ -54,6 +56,29 @@ class AddOrderIn(BaseModel):
 class AddOrderOut(BaseModel):
     customer_email: str
     status: str
+
+
+    class Config:
+        orm_mode = True
+
+
+class GetOrderIn(BaseModel):
+    id: int
+
+
+class GetOrderOut(BaseModel):
+    id: int
+    status: str
+    date_created: datetime.datetime
+    issue: str
+
+    class Config:
+        orm_mode = True
+
+
+class EmployeeNameOut(BaseModel):
+    Orders: GetOrderOut
+    employee_name: str
 
     class Config:
         orm_mode = True
