@@ -30,19 +30,17 @@ def register(user_credentials: UserRegisterIn, db_conn: Session = Depends(connec
     return new_user
 
 
-@router.get("/getOrders", response_model=List[EmployeeNameOut])
+@router.get("/getOrders", response_model=List[OrdersOut])
 def all_orders(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
 
     validate_user(current_user, "customer")
 
     db_conn.query(Orders)
 
-    query_result = db_conn.query(Orders, Users.name.label("employee_name")). \
-        join(Users, Users.id == Orders.employee_id, isouter=True). \
-        filter(current_user.id == Orders.customer_id).all()
+    query_result = db_conn.query(Orders).filter(current_user.id == Orders.customer_id).all()
 
     if not query_result:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Order not found")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="You do not have any orders")
 
     return query_result
 

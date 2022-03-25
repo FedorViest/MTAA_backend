@@ -30,6 +30,15 @@ class UserLoginOut(BaseModel):
         orm_mode = True
 
 
+class OrdersOut(BaseModel):
+    id: int
+    status: str
+    date_created: datetime.date
+
+    class Config:
+        orm_mode = True
+
+
 class OrderOut(BaseModel):
     id: int
     status: str
