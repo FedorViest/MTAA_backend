@@ -29,7 +29,7 @@ class Ratings(Base):
 
     id = Column(Integer, primary_key=True, nullable=False)
     customer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    employee_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    employee_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"))
     rating = Column(Float)
     comment = Column(VARCHAR)
 
@@ -39,7 +39,7 @@ class Orders(Base):
 
     id = Column(Integer, primary_key=True, nullable=False)
     customer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    employee_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    employee_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"))
     pc_id = Column(Integer, ForeignKey("computers.id"), nullable=False)
     date_created = Column(TIMESTAMP(timezone=True), server_default=text('CURRENT_TIMESTAMP'))
     status = Column(VARCHAR(20))
