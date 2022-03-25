@@ -6,10 +6,7 @@ from app.schemas.users import *
 from app.database import *
 from sqlalchemy.orm import Session
 from app.models import *
-
-SECRET_KEY = "f6254253905faca6bc1f1d173715be506cceb8474509ae3c22ad2c98f14b3348"
-ALGORITHM = "HS256"
-TOKEN_EXPIRE_MINUTES = 100
+import os
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='users/login')
 
@@ -17,17 +14,17 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='users/login')
 def create_token(data: dict):
     data_new = data.copy()
 
-    expire_time = datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRE_MINUTES)
+    expire_time = datetime.utcnow() + timedelta(minutes=int(os.getenv("TOKEN_EXPIRE")))
     data_new.update({"exp": expire_time})
 
-    jwt_encoded = jwt.encode(data_new, SECRET_KEY, algorithm=ALGORITHM)
+    jwt_encoded = jwt.encode(data_new, os.getenv("SECRET_KEY"), algorithm=os.getenv("ALGORITHM"))
 
     return jwt_encoded
 
 
 def verify_token(token: str, cred_exception):
     try:
-        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        decoded_token = jwt.decode(token, os.getenv("SECRET_KEY"), algorithms=[os.getenv("ALGORITHM")])
 
         id: str = decoded_token.get("id")
 
