@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app import oauth
@@ -28,16 +30,22 @@ def register(user_credentials: UserRegisterIn, db_conn: Session = Depends(connec
     return new_user
 
 
-@router.get("/getOrders", response_model=OrdersOut)
-def all_orders(conn_db: Session = Depends(connect_to_db)):
-    # TODO - query
-    return None
+@router.get("/getOrders", response_model=List[EmployeeNameOut])
+def all_orders(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
 
+    if current_user.position != "customer":
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail='Unauthorized user for this operation')
 
-@router.get("/getOrders/{id}", response_model=OrdersOut)
-def display_order(order: OneOrderIn):
-    # TODO - query
-    return None
+    db_conn.query(Orders)
+
+    query_result = db_conn.query(Orders, Users.name.label("employee_name")). \
+        join(Users, Users.id == Orders.employee_id, isouter=True). \
+        filter(current_user.id == Orders.customer_id).all()
+
+    if not query_result:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Order not found")
+
+    return query_result
 
 
 @router.post("/addOrder")
@@ -65,10 +73,11 @@ def post_order(order_details: AddOrderIn, db_conn: Session = Depends(connect_to_
 
     return new_order
 
-# response_model=EmployeeNameOut
+
 @router.post("/getOrders/{order_id}", response_model=EmployeeNameOut)
 def get_orders(order_id: int, db_conn: Session = Depends(connect_to_db),
                current_user: Users = Depends(oauth.get_user)):
+
     if current_user.position != "customer":
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail='Unauthorized user for this operation')
 

@@ -30,17 +30,22 @@ class UserLoginOut(BaseModel):
         orm_mode = True
 
 
-class OrdersOut(BaseModel):
+class OrderOut(BaseModel):
     id: int
-    state: str
-    problem: str
+    status: str
+    date_created: datetime.datetime
+    issue: str
 
     class Config:
         orm_mode = True
 
 
-class OneOrderIn(BaseModel):
-    id: int
+class EmployeeNameOut(BaseModel):
+    Orders: OrderOut
+    employee_name: str
+
+    class Config:
+        orm_mode = True
 
 
 class AddOrderIn(BaseModel):
@@ -56,29 +61,6 @@ class AddOrderIn(BaseModel):
 class AddOrderOut(BaseModel):
     customer_email: str
     status: str
-
-
-    class Config:
-        orm_mode = True
-
-
-class GetOrderIn(BaseModel):
-    id: int
-
-
-class GetOrderOut(BaseModel):
-    id: int
-    status: str
-    date_created: datetime.datetime
-    issue: str
-
-    class Config:
-        orm_mode = True
-
-
-class EmployeeNameOut(BaseModel):
-    Orders: GetOrderOut
-    employee_name: str
 
     class Config:
         orm_mode = True
