@@ -1,9 +1,11 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
 from app.schemas.employee import *
 from app.database import connect_to_db
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from app.models import *
 from app.schemas.employee import *
 import app.oauth as oauth
@@ -18,8 +20,7 @@ router = APIRouter(
 @router.put("/updateOrderState/{order_id}", response_model=updateOrderStateOut)
 def update_order(order_info: updateOrderStateIn, order_id: int, db_conn: Session = Depends(connect_to_db),
                  current_user: Users = Depends(oauth.get_user)):
-
-    utils.validate_user(current_user, "technician")
+    utils.validate_user(current_user, "employee")
 
     query_result = db_conn.query(Orders).filter(Orders.id == order_id)
 
@@ -30,3 +31,12 @@ def update_order(order_info: updateOrderStateIn, order_id: int, db_conn: Session
     db_conn.commit()
 
     return order_info.dict()
+
+
+@router.get("/getRepairs", response_model=List[getRepairsOut])
+def get_repairs(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
+    utils.validate_user(current_user, "employee")
+
+    query = db_conn.query(Orders).filter(current_user.id == Orders.employee_id).all()
+
+    return query
