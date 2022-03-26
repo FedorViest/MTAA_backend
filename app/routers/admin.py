@@ -39,9 +39,6 @@ def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(co
 
     # print("Email:" + current_user.email + " Position:" + current_user.position)
 
-    if not utils.email_valid(employee_details.email):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid email")
-
     new_user = Users(**employee_details.dict())
 
     db_conn.add(new_user)

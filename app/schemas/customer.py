@@ -1,12 +1,12 @@
 import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class UserRegisterIn(BaseModel):
     name: str
     password: str
-    email: str
+    email: EmailStr
     position: str = "customer"
 
 
@@ -19,7 +19,7 @@ class UserRegisterOut(BaseModel):
 
 
 class UserLoginIn(BaseModel):
-    username: str
+    username: EmailStr
     password: str
 
 
@@ -68,8 +68,8 @@ class EmployeeNameOut(BaseModel):
 
 
 class AddOrderIn(BaseModel):
-    customer_email: str
-    employee_email: str
+    customer_email: EmailStr
+    employee_email: EmailStr
     pc_brand: str
     pc_model: str
     pc_year: int
@@ -86,12 +86,12 @@ class AddOrderOut(BaseModel):
 
 
 class AddRatingIn(BaseModel):
-    customer_email: str
-    employee_email: str
+    customer_email: EmailStr
+    employee_email: EmailStr
     rating_stars: float
     comment: str
 
-
+# TODO mozno zmenit id na email
 class AddRatingOut(BaseModel):
     customer_id: str
     employee_id: str

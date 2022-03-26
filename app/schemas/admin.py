@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class AllRatingsOut(BaseModel):
@@ -13,7 +13,7 @@ class AllRatingsOut(BaseModel):
 class AddEmployeeIn(BaseModel):
     name: str
     password: str
-    email: str
+    email: EmailStr
     position: str
     skills: str
 
@@ -53,7 +53,7 @@ class GetComputersOut(BaseModel):
 class UpdateEmpolyeeIn(BaseModel):
     name: str
     password: str
-    email: str
+    email: EmailStr
     skills: str
 
 
