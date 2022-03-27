@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, validator
 
 
 class UserLoginIn(BaseModel):
@@ -15,3 +15,13 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     id: Optional[str] = None
+
+
+class getInfoOut(BaseModel):
+    name: str
+    email: str
+    position: str
+    skills: Optional[str]
+
+    class Config:
+        orm_mode = True

@@ -18,7 +18,6 @@ router = APIRouter(
 
 @router.post("/login")
 def login(user_login_info: OAuth2PasswordRequestForm = Depends(), db_conn: Session = Depends(connect_to_db)):
-
     print(user_login_info.username)
 
     user = db_conn.query(Users).filter(Users.email == user_login_info.username).first()
@@ -32,3 +31,14 @@ def login(user_login_info: OAuth2PasswordRequestForm = Depends(), db_conn: Sessi
     access_token = oauth.create_token(data={"id": user.id})
 
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get("/getInfo", response_model=getInfoOut)
+def get_user_info(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
+
+    user = db_conn.query(Users).filter(Users.id == current_user.id).first()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+
+    return user
