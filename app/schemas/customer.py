@@ -86,10 +86,10 @@ class AddOrderOut(BaseModel):
 
 
 class AddRatingIn(BaseModel):
-    customer_email: EmailStr
     employee_email: EmailStr
     rating_stars: float
     comment: str
+
 
 # TODO mozno zmenit id na email
 class AddRatingOut(BaseModel):

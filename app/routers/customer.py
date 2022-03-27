@@ -104,16 +104,20 @@ def post_rating(rating_details: AddRatingIn, db_conn: Session = Depends(connect_
 
     validate_user(current_user, "customer")
 
-    customer_id = db_conn.query(Users.id).filter(and_(Users.email == rating_details.customer_email,
+    customer_id = db_conn.query(Users.id).filter(and_(Users.email == current_user.email,
                                                       Users.position == "customer")).first()
 
     employee_id = db_conn.query(Users.id).filter(and_(Users.email == rating_details.employee_email,
-                                                      Users.position == "technician")).first()
+                                                      Users.position == "employee")).first()
+
+    if not employee_id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Incorrect technician assigned")
 
     customer_id = customer_id["id"]
     employee_id = employee_id["id"]
 
-    new_rating = Ratings(customer_id=customer_id, employee_id=employee_id, rating=rating_details.rating_stars, comment=rating_details.comment)
+    new_rating = Ratings(customer_id=customer_id, employee_id=employee_id, rating=rating_details.rating_stars,
+                         comment=rating_details.comment)
 
     db_conn.add(new_rating)
     db_conn.commit()
