@@ -120,3 +120,20 @@ def post_rating(rating_details: AddRatingIn, db_conn: Session = Depends(connect_
     db_conn.refresh(new_rating)
 
     return new_rating
+
+
+@router.delete("/removeRating/{rating_id}")
+def remove_rating(rating_id: int, db_conn: Session = Depends(connect_to_db),
+                  current_user: Users = Depends(oauth.get_user)):
+
+    validate_user(current_user, "customer")
+
+    result_query = db_conn.query(Ratings).filter(and_(Ratings.id == rating_id, Ratings.customer_id == current_user.id))
+
+    if not result_query:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Incorrect rating details")
+
+    result_query.delete()
+    db_conn.commit()
+
+    return f"Successfully deleted rating id: {rating_id}"
