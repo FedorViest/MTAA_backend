@@ -34,9 +34,20 @@ def login(user_login_info: OAuth2PasswordRequestForm = Depends(), db_conn: Sessi
 
 
 @router.get("/getInfo", response_model=getInfoOut)
-def get_user_info(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
+def get_current_user_info(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
 
     user = db_conn.query(Users).filter(Users.id == current_user.id).first()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+
+    return user
+
+
+@router.get("/getInfo/{email}", response_model=getInfoOut)
+def get_user_info(email, db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
+
+    user = db_conn.query(Users).filter(Users.email == email).first()
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")

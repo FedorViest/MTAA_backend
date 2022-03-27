@@ -1,3 +1,4 @@
+import datetime
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, validator
@@ -20,6 +21,7 @@ class TokenData(BaseModel):
 class getInfoOut(BaseModel):
     name: str
     email: str
+    registration_date: datetime.date
     position: str
     skills: Optional[str]
 
