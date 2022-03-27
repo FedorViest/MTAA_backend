@@ -1,4 +1,6 @@
+import datetime
 from pydantic import BaseModel
+
 
 
 class updateOrderStateIn(BaseModel):
@@ -18,6 +20,26 @@ class getRepairsOut(BaseModel):
     pc_id: str
     status: str
     issue: str
+
+    class Config:
+        orm_mode = True
+
+
+class OrderInfoOut(BaseModel):
+    id: int
+    status: str
+    date_created: datetime.datetime
+    issue: str
+
+    class Config:
+        orm_mode = True
+
+
+class RepairOut(BaseModel):
+    Orders: OrderInfoOut
+    brand: str
+    model: str
+    year_made: int
 
     class Config:
         orm_mode = True

@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import and_
 from starlette import status
 
 from app.schemas.employee import *
@@ -38,6 +39,22 @@ def get_repairs(db_conn: Session = Depends(connect_to_db), current_user: Users =
     utils.validate_user(current_user, "employee")
 
     query_result = db_conn.query(Orders).filter(current_user.id == Orders.employee_id).all()
+
+    if not query_result:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="You do not have any repairs")
+
+    return query_result
+
+
+@router.get("/getRepairs/{repair_id}", response_model=RepairOut)
+def get_repair(repair_id: int, db_conn: Session = Depends(connect_to_db),
+               current_user: Users = Depends(oauth.get_user)):
+
+    utils.validate_user(current_user, "employee")
+
+    query_result = db_conn.query(Orders, Computers.brand, Computers.model, Computers.year_made).\
+        join(Computers, Orders.pc_id == Computers.id).\
+        filter(and_(repair_id == Orders.id, current_user.id == Orders.employee_id)).first()
 
     if not query_result:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="You do not have any repairs")
