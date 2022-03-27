@@ -14,7 +14,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='users/login')
 def create_token(data: dict):
     data_new = data.copy()
 
-    expire_time = datetime.utcnow() + timedelta(minutes=int(os.getenv("TOKEN_EXPIRE")))
+    expire_time = datetime.datetime.utcnow() + timedelta(minutes=int(os.getenv("TOKEN_EXPIRE")))
     data_new.update({"exp": expire_time})
 
     jwt_encoded = jwt.encode(data_new, os.getenv("SECRET_KEY"), algorithm=os.getenv("ALGORITHM"))
