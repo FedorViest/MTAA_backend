@@ -1,8 +1,11 @@
 import base64
 import os
-
+import io
+import numpy as np
 from fastapi import APIRouter, Depends, status, HTTPException, Response, UploadFile, File
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
+from starlette.responses import StreamingResponse
+import cv2
 
 from app import utils, oauth
 from app.models import Users
@@ -61,22 +64,19 @@ def get_user_info(email, db_conn: Session = Depends(connect_to_db), current_user
 @router.post("/uploadPicture")
 async def upload_picture(image: UploadFile = File(...), db_conn: Session = Depends(connect_to_db),
                    current_user: Users = Depends(oauth.get_user)):
-    print(image.file)
-    print(image)
 
-    data = await image.read()
-    encoded_image = base64.b64encode(data)
+    path = "app/pictures/" + image.filename
 
-    print(encoded_image)
+    data = cv2.imread(path)
+    data_resized = cv2.resize(data, (100, 100))
+    result, encoded_image = cv2.imencode(".png", data_resized)
 
     result_query = db_conn.query(Users).filter(Users.id == current_user.id)
-
-    print(encoded_image)
 
     result_query.update({"profile_pic": encoded_image})
     db_conn.commit()
 
-    return None
+    return
 
 
 @router.get("/getPicture")
@@ -89,6 +89,6 @@ async def get_picture(db_conn: Session = Depends(connect_to_db), current_user: U
 
     image = result_query.profile_pic
 
-    print(image.decode())
+    img = np.asarray(bytearray(image), dtype="uint8")
 
-    return result_query
+    return StreamingResponse(io.BytesIO(img.tobytes()), media_type="image/png")
