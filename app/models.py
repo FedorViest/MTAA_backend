@@ -1,5 +1,4 @@
-from sqlalchemy import Column, Integer, VARCHAR, SmallInteger, Float, ForeignKey, TIMESTAMP, text
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, VARCHAR, SmallInteger, Float, ForeignKey, TIMESTAMP, text, BINARY
 from .database import Base
 
 
@@ -22,6 +21,7 @@ class Users(Base):
     registration_date = Column(TIMESTAMP(timezone=True), server_default=text('CURRENT_TIMESTAMP'))
     position = Column(VARCHAR(20))
     skills = Column(VARCHAR)
+    profile_pic = Column(BINARY)
 
 
 class Ratings(Base):

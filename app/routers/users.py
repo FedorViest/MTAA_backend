@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Depends, status, HTTPException, Response
+import base64
+import os
+
+from fastapi import APIRouter, Depends, status, HTTPException, Response, UploadFile, File
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 
 from app import utils, oauth
@@ -53,3 +56,39 @@ def get_user_info(email, db_conn: Session = Depends(connect_to_db), current_user
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
 
     return user
+
+
+@router.post("/uploadPicture")
+async def upload_picture(image: UploadFile = File(...), db_conn: Session = Depends(connect_to_db),
+                   current_user: Users = Depends(oauth.get_user)):
+    print(image.file)
+    print(image)
+
+    data = await image.read()
+    encoded_image = base64.b64encode(data)
+
+    print(encoded_image)
+
+    result_query = db_conn.query(Users).filter(Users.id == current_user.id)
+
+    print(encoded_image)
+
+    result_query.update({"profile_pic": encoded_image})
+    db_conn.commit()
+
+    return None
+
+
+@router.get("/getPicture")
+async def get_picture(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
+
+    result_query = db_conn.query(Users).filter(Users.id == current_user.id).first()
+
+    if not result_query:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Unknown user")
+
+    image = result_query.profile_pic
+
+    print(image.decode())
+
+    return result_query
