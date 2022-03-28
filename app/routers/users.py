@@ -23,10 +23,10 @@ def login(user_login_info: OAuth2PasswordRequestForm = Depends(), db_conn: Sessi
     user = db_conn.query(Users).filter(Users.email == user_login_info.username).first()
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid login details")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid login details")
 
     if not utils.password_check(user_login_info.password, user.password):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid login details")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid login details")
 
     access_token = oauth.create_token(data={"id": user.id})
 
