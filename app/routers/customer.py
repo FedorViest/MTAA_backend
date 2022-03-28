@@ -21,6 +21,11 @@ def register(user_credentials: UserRegisterIn, db_conn: Session = Depends(connec
     hashed_password = pwd_context.hash(user_credentials.password)
     user_credentials.password = hashed_password
 
+    result_query = db_conn.query(Users).filter(Users.email == user_credentials.email)
+
+    if result_query:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="User with selected email already exists")
+
     new_user = Users(**user_credentials.dict())
 
     db_conn.add(new_user)

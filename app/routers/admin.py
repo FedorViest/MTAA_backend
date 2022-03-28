@@ -42,7 +42,7 @@ def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(co
     result_query = db_conn.query(Users).filter(Users.email == employee_details.email)
 
     if result_query:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Specified user already exists")
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Employee with selected email already exists")
 
     new_user = Users(**employee_details.dict())
 
