@@ -145,4 +145,4 @@ def remove_rating(rating_id: int, db_conn: Session = Depends(connect_to_db),
     result_query.delete()
     db_conn.commit()
 
-    return f"Successfully deleted rating id: {rating_id}"
+    return f"Successfully deleted rating id: {rating_id}", status.HTTP_200_OK

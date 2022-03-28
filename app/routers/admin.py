@@ -41,7 +41,7 @@ def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(co
 
     result_query = db_conn.query(Users).filter(Users.email == employee_details.email)
 
-    if result_query:
+    if result_query.first():
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Employee with selected email already exists")
 
     new_user = Users(**employee_details.dict())
@@ -93,15 +93,20 @@ def change_employee(employee_info: UpdateEmpolyeeIn, db_conn: Session = Depends(
     return employee_info.dict()
 
 
-@router.delete("/deleteEmployee/{email}")
+@router.delete("/deleteEmployee/{email}", status_code=status.HTTP_200_OK)
 def delete_employee(email, db_conn: Session = Depends(connect_to_db),
                     current_user: Users = Depends(oauth.get_user)):
     utils.validate_user(current_user, "admin")
 
-    db_conn.query(Users).filter(Users.email == email).delete()
+    result_query = db_conn.query(Users).filter(Users.email == email)
+
+    if not result_query.first():
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Selected employee does not exist")
+
+    result_query.delete()
     db_conn.commit()
 
-    return None
+    return status.HTTP_200_OK
 
 
 @router.put("/assignEmployee/{email}/{order_id}", response_model=UpdateOrderOut)
