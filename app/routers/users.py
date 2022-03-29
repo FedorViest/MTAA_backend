@@ -122,7 +122,7 @@ async def get_picture(db_conn: Session = Depends(connect_to_db), current_user: U
     """
     Displays profile picture of logged in user
 
-    This API call returns image metadata in header
+    This API call returns image metadata in header and picture in body
     """
 
     result_query = db_conn.query(Users).filter(Users.id == current_user.id).first()
