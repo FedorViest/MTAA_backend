@@ -17,11 +17,18 @@ router = APIRouter(
 )
 
 
-# current_user: int = Depends(oauth.get_user)
-
-# , response_model=AllRatingsOut
-@router.get("/getRatings", response_model=List[RatingsOut])
+@router.get("/getRatings", response_model=List[AllRatingsOut], summary="Get ratings")
 def all_ratings(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
+    """
+      Get a list of all the ratings with these information:
+
+     - **id**: every rating has a unique id
+     - **customer_name**: every rating has a customer that posted it
+     - **employee_name**: every rating has a target employee
+     - **rating**: every rating has a floating number of stars
+     - **comment**: every rating has a customer's comment
+      """
+
     utils.validate_user(current_user, "admin")
 
     user_employee = aliased(Users)
@@ -39,15 +46,28 @@ def all_ratings(db_conn: Session = Depends(connect_to_db), current_user: Users =
     return result
 
 
-@router.post("/addEmployee", response_model=AddEmployeeOut)
+@router.post("/addEmployee", response_model=AddEmployeeOut, summary="Add new employee to the database")
 def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(connect_to_db),
                   current_user: Users = Depends(oauth.get_user)):
+    """
+    Create a new employee with this information required to be present in a request body:
+
+    - **name**: every new employee has to have a name
+    - **password**: every employee has to have a password
+    - **email**: every employee has to have a unique email address
+    - **position**: every employee has to have a position (either employee or admin)
+    - **skills**: every employee has a set of skills
+
+    This API call returns this information in a response body:
+
+    - **name**: new employee's name
+    - **email**: new employee's unique email
+      """
+
     utils.validate_user(current_user, "admin")
 
     hashed_password = pwd_context.hash(employee_details.password)
     employee_details.password = hashed_password
-
-    # print("Email:" + current_user.email + " Position:" + current_user.position)
 
     result_query = db_conn.query(Users).filter(Users.email == employee_details.email)
 
@@ -63,9 +83,23 @@ def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(co
     return new_user
 
 
-@router.post("/addComputer", response_model=AddComputerOut)
+@router.post("/addComputer", response_model=AddComputerOut, summary="Add new computer to the database")
 def post_computer(computer_details: AddComputerIn, db_conn: Session = Depends(connect_to_db),
                   current_user: Users = Depends(oauth.get_user)):
+
+    """
+    Create a new computer with this information required to be present in a request body:
+
+    - **brand**: str
+    - **model**: str
+    - **year_made**: str
+
+    This API call returns this information in a response body:
+
+    - **name**: new employee's name
+    - **email**: new employee's unique email
+      """
+
     utils.validate_user(current_user, "admin")
 
     new_computer = Computers(**computer_details.dict())
