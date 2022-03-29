@@ -26,7 +26,7 @@ router = APIRouter(
 def login(user_login_info: OAuth2PasswordRequestForm = Depends(), db_conn: Session = Depends(connect_to_db)):
 
     """
-        Logs in existing user with given information:
+        Required request body:
 
         -**email**: email of user
         -**password**: password of user
@@ -50,15 +50,13 @@ def login(user_login_info: OAuth2PasswordRequestForm = Depends(), db_conn: Sessi
 @router.get("/getInfo", response_model=getInfoOut, summary="Displays information about logged in user")
 def get_current_user_info(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
     """
-            Displays information about logged in user
+            Required response body:
 
-            This API call returns this information in a response body:
-
-            -**name**: name of logged in user
-            -**email**: email of logged in user
-            -**registration_date**: date, when logged in user was registered
-            -**position**: position of logged in user(customer/employee/admin)
-            -**skills [Optional]**: skills when logged in user is employee
+            - **name**: name of logged in user
+            - **email**: email of logged in user
+            - **registration_date**: date, when logged in user was registered
+            - **position**: position of logged in user(customer/employee/admin)
+            - **skills [Optional]**: skills when logged in user is employee
         """
 
     user = db_conn.query(Users).filter(Users.id == current_user.id).first()
@@ -72,15 +70,17 @@ def get_current_user_info(db_conn: Session = Depends(connect_to_db), current_use
 @router.get("/getInfo/{email}", response_model=getInfoOut, summary="Displays information about user with given email")
 def get_user_info(email, db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
     """
-                Displays information about logged in user with given email
+                Required parameter:
 
-                This API call returns this information in a response body:
+                - **email**: email of user, whose information should be displayed
 
-                -**name**: name of selected user
-                -**email**: email of selected user
-                -**registration_date**: date, when selected user was registered
-                -**position**: position of selected user(customer/employee/admin)
-                -**skills [Optional]**: skills when selected user is employee
+                Required response body:
+
+                - **name**: name of selected user
+                - **email**: email of selected user
+                - **registration_date**: date, when selected user was registered
+                - **position**: position of selected user(customer/employee/admin)
+                - **skills [Optional]**: skills when selected user is employee
             """
 
     user = db_conn.query(Users).filter(Users.email == email).first()
@@ -96,9 +96,11 @@ async def upload_picture(image: UploadFile = File(...), db_conn: Session = Depen
                    current_user: Users = Depends(oauth.get_user)):
 
     """
-        Uploads profile picture of type File to database
+        Required request body:
+        - **image**: image selected from computer
 
-        This API call returns JSON {"Upload image": "Successful"}
+        Required response body:
+        - **"Upload image": "Successful"**
 
     """
 
@@ -120,9 +122,9 @@ async def upload_picture(image: UploadFile = File(...), db_conn: Session = Depen
 async def get_picture(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
 
     """
-    Displays profile picture of logged in user
+        Required response body:
 
-    This API call returns image metadata in header and picture in body
+        - **image**: in png format
     """
 
     result_query = db_conn.query(Users).filter(Users.id == current_user.id).first()

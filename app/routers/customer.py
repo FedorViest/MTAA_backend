@@ -21,13 +21,14 @@ router = APIRouter(
 def register(user_credentials: UserRegisterIn, db_conn: Session = Depends(connect_to_db)):
 
     """
-    Create new customer account with these information required:
+    Required request body:
 
     - **name**: each new user has to have a name
     - **password**: every user has to have a password
     - **email**: every user has to have unique email address
+    - **position**: set to default value "customer"
 
-    This API call returns this information in a response body:
+    Required response body:
 
     - **name**: new users name
     - **email**: new users email
@@ -54,9 +55,7 @@ def register(user_credentials: UserRegisterIn, db_conn: Session = Depends(connec
 def all_orders(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
 
     """
-        Lists all orders for logged in customer
-
-        This API call returns this information in a response body:
+        Required response body:
 
         - **id**: id of order
         - **status**: status of order (accepted/finished)
@@ -80,14 +79,14 @@ def all_orders(db_conn: Session = Depends(connect_to_db), current_user: Users = 
 def post_order(order_details: AddOrderIn, db_conn: Session = Depends(connect_to_db),
                current_user: Users = Depends(oauth.get_user)):
     """
-            Creates order with information given:
+            Required request body:
 
             - **pc_brand**: brand of computer
             - **pc_model**: model of computer
             - **pc_year**: year computer was made
             - **issue**: what is problem with computer
 
-            This API call returns this information in a response body:
+            Required response body:
 
             - **customer_email**: email of logged in user
             - **status**: status of order
@@ -124,11 +123,11 @@ def post_order(order_details: AddOrderIn, db_conn: Session = Depends(connect_to_
 def get_orders(order_id: int, db_conn: Session = Depends(connect_to_db),
                current_user: Users = Depends(oauth.get_user)):
     """
-    Shows information about selected order by order_id:
+    Required parameters:
 
     - **order_id**: ID of order
 
-    This API call returns this information in a response body:
+    Required response body:
 
     - **id**: id of selected order
     - **status**: status of selected order
@@ -165,13 +164,13 @@ def get_orders(order_id: int, db_conn: Session = Depends(connect_to_db),
 def post_rating(rating_details: AddRatingIn, db_conn: Session = Depends(connect_to_db),
                 current_user: Users = Depends(oauth.get_user)):
     """
-        Adds rating of employee from selected emplyee email:
+        Required request body::
 
         - **employee_email**: email of employee
         - **rating_stars**: decimal value
         - **comment**: comment of what was positive and/or negative about given employee
 
-        This API call returns this information in a response body:
+        Required response body:
 
         - **customer_id**: id of logged in customer
         - **employee_id**: id of selected employee
@@ -209,11 +208,12 @@ def remove_rating(rating_id: int, db_conn: Session = Depends(connect_to_db),
                   current_user: Users = Depends(oauth.get_user)):
 
     """
-        Removes rating of employee by selected rating_id:
+        Required parameter:
 
         - **rating_id**: id of rating
 
-        This API call returns this information in a response body:
+        Required response body:
+
         - "Successfully deleted rating id: {rating_id}", status.HTTP_200_OK
     """
 
