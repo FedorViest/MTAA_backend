@@ -20,7 +20,9 @@ router = APIRouter(
 @router.get("/getRatings", response_model=List[AllRatingsOut], summary="Get all ratings")
 def all_ratings(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
     """
-      Get a list of all the ratings with this information in a response body:
+      Get a list of all the ratings
+
+      Required response body:
 
      - **id**: every rating has a unique id
      - **customer_name**: every rating has a customer that posted it
@@ -50,7 +52,9 @@ def all_ratings(db_conn: Session = Depends(connect_to_db), current_user: Users =
 def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(connect_to_db),
                   current_user: Users = Depends(oauth.get_user)):
     """
-    Create a new employee with this information required to be present in a request body:
+    Create a new employee and add it to the database
+
+    Required request body:
 
     - **name**: every new employee has to have a name
     - **password**: every employee has to have a password
@@ -58,7 +62,7 @@ def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(co
     - **position**: every employee has to have a position (either employee or admin)
     - **skills**: every employee has a set of skills
 
-    This API call returns this information in a response body:
+    Required response body:
 
     - **name**: new employee's name
     - **email**: new employee's unique email
@@ -88,13 +92,15 @@ def post_computer(computer_details: AddComputerIn, db_conn: Session = Depends(co
                   current_user: Users = Depends(oauth.get_user)):
 
     """
-    Create a new computer with this information required to be present in a request body:
+    Create a new computer and add it to the database
+
+    Required request body:
 
     - **brand**: every computer has its own brand
     - **model**: every brand has a model
     - **year_made**: every computer has a year in which it has been published
 
-    This API call returns this information in a response body:
+    Required response body:
 
     - **brand**: every computer has its own brand
     - **model**: every brand has a model
@@ -115,7 +121,9 @@ def post_computer(computer_details: AddComputerIn, db_conn: Session = Depends(co
 @router.get("/getComputers", response_model=List[GetComputersOut], summary="Get all computers")
 def get_computers(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
     """
-    Get a list of all the ratings with this information in a response body:
+    Get a list of all the ratings
+
+    Required response body:
 
     - **brand**: every computer has its own brand
     - **model**: every brand has a model
@@ -134,18 +142,20 @@ def change_employee(email: str, employee_info: UpdateEmpolyeeIn, db_conn: Sessio
                     current_user: Users = Depends(oauth.get_user)):
 
     """
-    Change information about employee based on these parameters:
+    Change information about employee
+
+    Required parameters:
 
     - **email**: email of the employee that is to be updated
 
-    This information is required to be present in a request body:
+    Required request body:
 
     - **name**: every employee has to have a name
     - **password**: every employee has to have a password
     - **email**: every employee has to have a unique email
     - **skills**: every employee has a set of skills
 
-    This API call returns this information in a response body:
+    Required response body:
 
     - **name**: new name of employee
     - **email**: new email of employee
@@ -171,7 +181,9 @@ def delete_employee(email, db_conn: Session = Depends(connect_to_db),
                     current_user: Users = Depends(oauth.get_user)):
 
     """
-    Delete employee from the database with these parameters:
+    Delete employee from the database
+
+    Required parameters:
 
     - **email**: email of the employee that is going to be deleted
     """
@@ -194,7 +206,9 @@ def assign_employee(email: str, order_id: int, db_conn: Session = Depends(connec
                     current_user: Users = Depends(oauth.get_user)):
 
     """
-    Delete employee from the database with these parameters:
+    Assign a specified employee to a specified order
+
+    Required parameters:
 
     - **email**: email of the employee that is going to be assigned to the order
     - **order_id**: order's id that is going to be assigned to the employee

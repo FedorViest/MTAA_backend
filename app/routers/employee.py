@@ -19,15 +19,17 @@ router = APIRouter(
 def update_order(order_info: updateOrderStateIn, order_id: int, db_conn: Session = Depends(connect_to_db),
                  current_user: Users = Depends(oauth.get_user)):
     """
-    Update state of the specified order with this parameter:
+    Update state of the specified order
+
+    Required parameters:
 
     - **order_id**: id of the order's state to be updated
 
-    Request body has to have this information:
+    Required request body:
 
     - **status**: new state of the order
 
-    Response body has to have this information:
+    Required response body:
 
     - **status**: new state of the order
     """
@@ -51,7 +53,7 @@ def get_repairs(db_conn: Session = Depends(connect_to_db), current_user: Users =
     """
     Get list of all repairs for currently signed in employee
 
-    Response body has to have this information:
+    Required response body:
 
     - **id**: order's id
     - **date_created**: date of order's creation
@@ -88,7 +90,7 @@ def get_repair(repair_id: int, db_conn: Session = Depends(connect_to_db),
     Required parameters:
     - **repair_id**: specified order's id
 
-    Response body required information:
+    Required response body:
 
     - **id**: order's id
     - **status**: order's state
