@@ -10,6 +10,15 @@ class AllRatingsOut(BaseModel):
         orm_mode = True
 
 
+class RatingsOut(BaseModel):
+    Ratings: AllRatingsOut
+    employee_email: str
+    customer_email: str
+
+    class Config:
+        orm_mode = True
+
+
 class AddEmployeeIn(BaseModel):
     name: str
     password: str

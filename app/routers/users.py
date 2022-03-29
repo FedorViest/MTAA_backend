@@ -76,7 +76,7 @@ async def upload_picture(image: UploadFile = File(...), db_conn: Session = Depen
     result_query.update({"profile_pic": encoded_image})
     db_conn.commit()
 
-    return
+    return {"Upload image": "Successful"}
 
 
 @router.get("/getPicture")

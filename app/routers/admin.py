@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app import oauth
 from app.schemas.admin import *
 from app.database import connect_to_db
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from app.models import *
 from app.utils import pwd_context
 import app.utils as utils
@@ -19,12 +19,22 @@ router = APIRouter(
 
 # current_user: int = Depends(oauth.get_user)
 
-
-@router.get("/getRatings", response_model=AllRatingsOut)
+# , response_model=AllRatingsOut
+@router.get("/getRatings", response_model=List[RatingsOut])
 def all_ratings(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
     utils.validate_user(current_user, "admin")
 
-    result = db_conn.query(Ratings).all()
+    user_employee = aliased(Users)
+    user_customer = aliased(Users)
+
+    result = db_conn.query(Ratings, user_employee.email.label("employee_email"),
+                           user_customer.email.label("customer_email")).\
+        join(user_customer, user_customer.id == Ratings.customer_id).\
+        join(user_employee, user_employee.id == Ratings.employee_id).\
+        all()
+
+    if not result:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No ratings found")
 
     return result
 
