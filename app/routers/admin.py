@@ -17,10 +17,10 @@ router = APIRouter(
 )
 
 
-@router.get("/getRatings", response_model=List[AllRatingsOut], summary="Get ratings")
+@router.get("/getRatings", response_model=List[AllRatingsOut], summary="Get all ratings")
 def all_ratings(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
     """
-      Get a list of all the ratings with these information:
+      Get a list of all the ratings with this information in a response body:
 
      - **id**: every rating has a unique id
      - **customer_name**: every rating has a customer that posted it
@@ -90,14 +90,15 @@ def post_computer(computer_details: AddComputerIn, db_conn: Session = Depends(co
     """
     Create a new computer with this information required to be present in a request body:
 
-    - **brand**: str
-    - **model**: str
-    - **year_made**: str
+    - **brand**: every computer has its own brand
+    - **model**: every brand has a model
+    - **year_made**: every computer has a year in which it has been published
 
     This API call returns this information in a response body:
 
-    - **name**: new employee's name
-    - **email**: new employee's unique email
+    - **brand**: every computer has its own brand
+    - **model**: every brand has a model
+    - **year_made**: every computer has a year in which it has been published
       """
 
     utils.validate_user(current_user, "admin")
@@ -111,8 +112,16 @@ def post_computer(computer_details: AddComputerIn, db_conn: Session = Depends(co
     return new_computer
 
 
-@router.get("/getComputers", response_model=List[GetComputersOut])
+@router.get("/getComputers", response_model=List[GetComputersOut], summary="Get all computers")
 def get_computers(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
+    """
+    Get a list of all the ratings with this information in a response body:
+
+    - **brand**: every computer has its own brand
+    - **model**: every brand has a model
+    - **year_made**: every computer has a year in which it has been published
+      """
+
     utils.validate_user(current_user, "admin")
 
     result = db_conn.query(Computers).all()
@@ -120,9 +129,29 @@ def get_computers(db_conn: Session = Depends(connect_to_db), current_user: Users
     return result
 
 
-@router.put("/changeEmployee/{email}", response_model=UpdateEmployeeOut)
+@router.put("/changeEmployee/{email}", response_model=UpdateEmployeeOut, summary="Change employee' information")
 def change_employee(employee_info: UpdateEmpolyeeIn, db_conn: Session = Depends(connect_to_db),
                     current_user: Users = Depends(oauth.get_user)):
+
+    """
+    Change information about employee based on these parameters:
+
+    - **email**: email of the employee that is to be updated
+
+    This information is required to be present in a request body:
+
+    - **name**: every employee has to have a name
+    - **password**: every employee has to have a password
+    - **email**: every employee has to have a unique email
+    - **skills**: every employee has a set of skills
+
+    This API call returns this information in a response body:
+
+    - **name**: new name of employee
+    - **email**: new email of employee
+    - **skills**: new skills of employee
+      """
+
     utils.validate_user(current_user, "admin")
 
     query_result = db_conn.query(Users).filter(and_(Users.email == employee_info.email,
@@ -137,9 +166,16 @@ def change_employee(employee_info: UpdateEmpolyeeIn, db_conn: Session = Depends(
     return employee_info.dict()
 
 
-@router.delete("/deleteEmployee/{email}", status_code=status.HTTP_200_OK)
+@router.delete("/deleteEmployee/{email}", status_code=status.HTTP_200_OK, summary="Delete employee from the database")
 def delete_employee(email, db_conn: Session = Depends(connect_to_db),
                     current_user: Users = Depends(oauth.get_user)):
+
+    """
+    Delete employee from the database with these parameters:
+
+    - **email**: email of the employee that is going to be deleted
+    """
+
     utils.validate_user(current_user, "admin")
 
     result_query = db_conn.query(Users).filter(Users.email == email)
@@ -153,9 +189,17 @@ def delete_employee(email, db_conn: Session = Depends(connect_to_db),
     return status.HTTP_200_OK
 
 
-@router.put("/assignEmployee/{email}/{order_id}", response_model=UpdateOrderOut)
+@router.put("/assignEmployee/{email}/{order_id}", response_model=UpdateOrderOut, summary="Assign employee a repair")
 def assign_employee(email: str, order_id: int, db_conn: Session = Depends(connect_to_db),
                     current_user: Users = Depends(oauth.get_user)):
+
+    """
+    Delete employee from the database with these parameters:
+
+    - **email**: email of the employee that is going to be assigned to the order
+    - **order_id**: order's id that is going to be assigned to the employee
+    """
+
     utils.validate_user(current_user, "admin")
 
     result_query_employees = db_conn.query(Users.id).filter(and_(Users.email == email,
