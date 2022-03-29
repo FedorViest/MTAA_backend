@@ -68,12 +68,9 @@ class EmployeeNameOut(BaseModel):
 
 
 class AddOrderIn(BaseModel):
-    customer_email: EmailStr
-    employee_email: EmailStr
     pc_brand: str
     pc_model: str
     pc_year: int
-    status: str = "accepted"
     issue: str
 
 

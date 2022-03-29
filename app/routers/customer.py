@@ -16,8 +16,23 @@ router = APIRouter(
 )
 
 
-@router.post("/registration", response_model=UserRegisterOut)
+@router.post("/registration", response_model=UserRegisterOut,
+             summary="Registers new customer and adds information to database")
 def register(user_credentials: UserRegisterIn, db_conn: Session = Depends(connect_to_db)):
+
+    """
+    Create new customer account with these information required:
+
+    - **name**: each new user has to have a name
+    - **password**: every user has to have a password
+    - **email**: every user has to have unique email address
+
+    This API call returns this information in a response body:
+
+    - **name**: new users name
+    - **email**: new users email
+    """
+
     hashed_password = pwd_context.hash(user_credentials.password)
     user_credentials.password = hashed_password
 
@@ -35,8 +50,19 @@ def register(user_credentials: UserRegisterIn, db_conn: Session = Depends(connec
     return new_user
 
 
-@router.get("/getOrders", response_model=List[OrdersOut])
+@router.get("/getOrders", response_model=List[OrdersOut], summary="List all orders of logged in customer")
 def all_orders(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
+
+    """
+        Lists all orders for logged in customer
+
+        This API call returns this information in a response body:
+
+        - **id**: id of order
+        - **status**: status of order (accepted/finished)
+        - **date_created**: when was order created
+
+    """
 
     validate_user(current_user, "customer")
 
@@ -50,17 +76,27 @@ def all_orders(db_conn: Session = Depends(connect_to_db), current_user: Users = 
     return query_result
 
 
-@router.post("/addOrder")
+@router.post("/addOrder", response_model=AddOrderOut, summary="Creates order with given information")
 def post_order(order_details: AddOrderIn, db_conn: Session = Depends(connect_to_db),
                current_user: Users = Depends(oauth.get_user)):
+    """
+            Creates order with information given:
+
+            - **pc_brand**: brand of computer
+            - **pc_model**: model of computer
+            - **pc_year**: year computer was made
+            - **issue**: what is problem with computer
+
+            This API call returns this information in a response body:
+
+            - **customer_email**: email of logged in user
+            - **status**: status of order
+    """
 
     validate_user(current_user, "customer")
 
-    customer_id = db_conn.query(Users.id).filter(and_(Users.email == order_details.customer_email,
+    customer_id = db_conn.query(Users.id).filter(and_(Users.email == current_user.email,
                                                       Users.position == "customer")).first()
-
-    employee_id = db_conn.query(Users.id).filter(and_(Users.email == order_details.employee_email,
-                                                      Users.position == "employee")).first()
 
     pc_id = db_conn.query(Computers.id).filter(and_(Computers.brand == order_details.pc_brand,
                                                     Computers.model == order_details.pc_model,
@@ -68,21 +104,43 @@ def post_order(order_details: AddOrderIn, db_conn: Session = Depends(connect_to_
 
     customer_id = customer_id["id"]
     pc_id = pc_id["id"]
-    employee_id = employee_id["id"]
 
-    new_order = Orders(customer_id=customer_id, employee_id=employee_id, pc_id=pc_id, status=order_details.status,
+    new_order = Orders(customer_id=customer_id, employee_id=None, pc_id=pc_id, status="accepted",
                        issue=order_details.issue)
 
     db_conn.add(new_order)
     db_conn.commit()
     db_conn.refresh(new_order)
 
-    return new_order
+    result = {"customer_email": current_user.email,
+              "status": "accepted"
+              }
+
+    return result
 
 
-@router.get("/getOrders/{order_id}", response_model=EmployeeNameOut)
+@router.get("/getOrders/{order_id}", response_model=EmployeeNameOut,
+            summary="Returns information about order with given id")
 def get_orders(order_id: int, db_conn: Session = Depends(connect_to_db),
                current_user: Users = Depends(oauth.get_user)):
+    """
+    Shows information about selected order by order_id:
+
+    - **order_id**: ID of order
+
+    This API call returns this information in a response body:
+
+    - **id**: id of selected order
+    - **status**: status of selected order
+    - **date_created**: date when order was created
+    - **issue**: problem with computer
+    - **brand**: brand of computer in order
+    - **model**: model of computer in order
+    - **employee_name**: name of employee doing the order
+    - **user_email**: email of user, who created the repair
+
+    """
+
     validate_user(current_user, "customer")
 
     user_employee = aliased(Users)
@@ -103,9 +161,24 @@ def get_orders(order_id: int, db_conn: Session = Depends(connect_to_db),
     return query_result
 
 
-@router.post("/addRating", response_model=AddRatingOut)
+@router.post("/addRating", response_model=AddRatingOut, summary="Customer can add rating of selected empolyee")
 def post_rating(rating_details: AddRatingIn, db_conn: Session = Depends(connect_to_db),
                 current_user: Users = Depends(oauth.get_user)):
+    """
+        Adds rating of employee from selected emplyee email:
+
+        - **employee_email**: email of employee
+        - **rating_stars**: decimal value
+        - **comment**: comment of what was positive and/or negative about given employee
+
+        This API call returns this information in a response body:
+
+        - **customer_id**: id of logged in customer
+        - **employee_id**: id of selected employee
+        - **rating** output decimal value
+        - **comment**: output comment
+
+    """
 
     validate_user(current_user, "customer")
 
@@ -131,9 +204,18 @@ def post_rating(rating_details: AddRatingIn, db_conn: Session = Depends(connect_
     return new_rating
 
 
-@router.delete("/removeRating/{rating_id}")
+@router.delete("/removeRating/{rating_id}", summary="Removes selected rating")
 def remove_rating(rating_id: int, db_conn: Session = Depends(connect_to_db),
                   current_user: Users = Depends(oauth.get_user)):
+
+    """
+        Removes rating of employee by selected rating_id:
+
+        - **rating_id**: id of rating
+
+        This API call returns this information in a response body:
+        - "Successfully deleted rating id: {rating_id}", status.HTTP_200_OK
+    """
 
     validate_user(current_user, "customer")
 
