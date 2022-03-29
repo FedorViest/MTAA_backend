@@ -61,7 +61,6 @@ class GetComputersOut(BaseModel):
 
 class UpdateEmpolyeeIn(BaseModel):
     name: str
-    password: str
     email: EmailStr
     skills: str
 

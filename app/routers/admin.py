@@ -70,6 +70,9 @@ def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(co
 
     utils.validate_user(current_user, "admin")
 
+    if not utils.email_valid(employee_details.email):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid email")
+
     hashed_password = pwd_context.hash(employee_details.password)
     employee_details.password = hashed_password
 
@@ -151,7 +154,6 @@ def change_employee(email: str, employee_info: UpdateEmpolyeeIn, db_conn: Sessio
     Required request body:
 
     - **name**: every employee has to have a name
-    - **password**: every employee has to have a password
     - **email**: every employee has to have a unique email
     - **skills**: every employee has a set of skills
 
@@ -164,10 +166,13 @@ def change_employee(email: str, employee_info: UpdateEmpolyeeIn, db_conn: Sessio
 
     utils.validate_user(current_user, "admin")
 
-    query_result = db_conn.query(Users).filter(and_(Users.email == email,
-                                                    Users.position == 'technician'))
+    if not utils.email_valid(email) or not utils.email_valid(employee_info.email):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid email")
 
-    if not query_result:
+    query_result = db_conn.query(Users).filter(and_(Users.email == email,
+                                                    Users.position == 'employee'))
+
+    if not query_result.first():
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
 
     query_result.update(employee_info.dict())
@@ -189,6 +194,9 @@ def delete_employee(email, db_conn: Session = Depends(connect_to_db),
     """
 
     utils.validate_user(current_user, "admin")
+
+    if not utils.email_valid(email):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid email")
 
     result_query = db_conn.query(Users).filter(Users.email == email)
 
@@ -215,6 +223,9 @@ def assign_employee(email: str, order_id: int, db_conn: Session = Depends(connec
     """
 
     utils.validate_user(current_user, "admin")
+
+    if not utils.email_valid(email):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid email")
 
     result_query_employees = db_conn.query(Users.id).filter(and_(Users.email == email,
                                                                  Users.position == "employee"))

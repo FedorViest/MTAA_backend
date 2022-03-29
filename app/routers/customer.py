@@ -2,7 +2,7 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app import oauth
+from app import oauth, utils
 from app.schemas.customer import *
 from app.database import connect_to_db
 from sqlalchemy.orm import Session, aliased
@@ -36,6 +36,9 @@ def register(user_credentials: UserRegisterIn, db_conn: Session = Depends(connec
 
     hashed_password = pwd_context.hash(user_credentials.password)
     user_credentials.password = hashed_password
+
+    if not utils.email_valid(user_credentials.email):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid email")
 
     result_query = db_conn.query(Users).filter(Users.email == user_credentials.email)
 
@@ -180,6 +183,9 @@ def post_rating(rating_details: AddRatingIn, db_conn: Session = Depends(connect_
     """
 
     validate_user(current_user, "customer")
+
+    if not utils.email_valid(rating_details.employee_email):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid email")
 
     customer_id = db_conn.query(Users.id).filter(and_(Users.email == current_user.email,
                                                       Users.position == "customer")).first()

@@ -83,6 +83,9 @@ def get_user_info(email, db_conn: Session = Depends(connect_to_db), current_user
                 - **skills [Optional]**: skills when selected user is employee
             """
 
+    if not utils.email_valid(email):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid email")
+
     user = db_conn.query(Users).filter(Users.email == email).first()
 
     if not user:

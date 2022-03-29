@@ -4,11 +4,19 @@ import re
 
 from starlette import status
 
+email_format_regex = '^[a-zA-z0-9]+[\._]?[a-zA-Z0-9]+[@]\w+[.]\w{2,3}$'
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def password_check(password, password_db):
     return pwd_context.verify(password, password_db)
+
+
+def email_valid(email: str):
+    if re.search(email_format_regex, email):
+        return True
+    return False
 
 
 def validate_user(current_user, target_position):
