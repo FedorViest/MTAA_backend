@@ -130,7 +130,7 @@ def get_computers(db_conn: Session = Depends(connect_to_db), current_user: Users
 
 
 @router.put("/changeEmployee/{email}", response_model=UpdateEmployeeOut, summary="Change employee' information")
-def change_employee(employee_info: UpdateEmpolyeeIn, db_conn: Session = Depends(connect_to_db),
+def change_employee(email: str, employee_info: UpdateEmpolyeeIn, db_conn: Session = Depends(connect_to_db),
                     current_user: Users = Depends(oauth.get_user)):
 
     """
@@ -154,7 +154,7 @@ def change_employee(employee_info: UpdateEmpolyeeIn, db_conn: Session = Depends(
 
     utils.validate_user(current_user, "admin")
 
-    query_result = db_conn.query(Users).filter(and_(Users.email == employee_info.email,
+    query_result = db_conn.query(Users).filter(and_(Users.email == email,
                                                     Users.position == 'technician'))
 
     if not query_result:
