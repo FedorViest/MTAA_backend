@@ -1,5 +1,3 @@
-import base64
-import os
 import io
 import numpy as np
 from fastapi import APIRouter, Depends, status, HTTPException, Response, UploadFile, File
@@ -20,7 +18,8 @@ router = APIRouter(
 )
 
 
-# get_current_user: int = Depends(oauth.get_user)
+# Tu sa zacina kod podla vzoru videa z linku:
+# https://www.youtube.com/watch?v=0sOvCWFmrtA&t=25986s&ab_channel=freeCodeCamp.org
 
 @router.post("/login", summary="Logs in existing user")
 def login(user_login_info: OAuth2PasswordRequestForm = Depends(), db_conn: Session = Depends(connect_to_db)):
@@ -45,6 +44,9 @@ def login(user_login_info: OAuth2PasswordRequestForm = Depends(), db_conn: Sessi
     access_token = oauth.create_token(data={"id": user.id})
 
     return {"access_token": access_token, "token_type": "bearer"}
+
+# Tu sa konci kod podla vzoru videa z linku:
+# https://www.youtube.com/watch?v=0sOvCWFmrtA&t=25986s&ab_channel=freeCodeCamp.org
 
 
 @router.get("/getInfo", response_model=getInfoOut, summary="Displays information about logged in user")

@@ -8,6 +8,9 @@ from sqlalchemy.orm import Session
 from app.models import *
 import os
 
+# Tu sa zacina kod podla vzoru videa z linku:
+# https://www.youtube.com/watch?v=0sOvCWFmrtA&t=25986s&ab_channel=freeCodeCamp.org
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='users/login')
 
 
@@ -47,3 +50,6 @@ def get_user(token: str = Depends(oauth2_scheme), db_conn: Session = Depends(con
     user = db_conn.query(Users).filter(Users.id == token.id).first()
 
     return user
+
+# Tu sa konci kod podla vzoru videa z linku:
+# https://www.youtube.com/watch?v=0sOvCWFmrtA&t=25986s&ab_channel=freeCodeCamp.org
