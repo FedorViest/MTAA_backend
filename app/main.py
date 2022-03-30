@@ -31,7 +31,8 @@ tags_metadata = [
         "name": "Users",
         "description": "Operations that **every** authorized user can use. The **login** logic is also here.",
         "externalDocs": {
-            "description": "Most of the code has been taken from FastAPI documentation.",
+            "description": "Most of the code has been taken from FastAPI documentation. Login has been taken from:"
+                           "https://www.youtube.com/watch?v=0sOvCWFmrtA&t=25986s&ab_channel=freeCodeCamp.org",
             "url": "https://fastapi.tiangolo.com/",
         },
     },
