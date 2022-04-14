@@ -84,3 +84,9 @@ class UpdateOrderOut(BaseModel):
     class Config:
         orm_mode = True
 
+class AllEmployeesOut(BaseModel):
+    name: str
+    email: str
+
+    class Config:
+        orm_mode = True

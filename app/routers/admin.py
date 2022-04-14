@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app import oauth
 from app.schemas.admin import *
+from app.schemas.employee import OrderInfoOut
 from app.database import connect_to_db
 from sqlalchemy.orm import Session, aliased
 from app.models import *
@@ -37,9 +38,9 @@ def all_ratings(db_conn: Session = Depends(connect_to_db), current_user: Users =
     user_customer = aliased(Users)
 
     result = db_conn.query(Ratings, user_employee.email.label("employee_email"),
-                           user_customer.email.label("customer_email")).\
-        join(user_customer, user_customer.id == Ratings.customer_id).\
-        join(user_employee, user_employee.id == Ratings.employee_id).\
+                           user_customer.email.label("customer_email")). \
+        join(user_customer, user_customer.id == Ratings.customer_id). \
+        join(user_employee, user_employee.id == Ratings.employee_id). \
         all()
 
     if not result:
@@ -93,7 +94,6 @@ def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(co
 @router.post("/addComputer", response_model=AddComputerOut, summary="Add new computer to the database")
 def post_computer(computer_details: AddComputerIn, db_conn: Session = Depends(connect_to_db),
                   current_user: Users = Depends(oauth.get_user)):
-
     """
     Create a new computer and add it to the database
 
@@ -143,7 +143,6 @@ def get_computers(db_conn: Session = Depends(connect_to_db), current_user: Users
 @router.put("/changeEmployee/{email}", response_model=UpdateEmployeeOut, summary="Change employee' information")
 def change_employee(email: str, employee_info: UpdateEmpolyeeIn, db_conn: Session = Depends(connect_to_db),
                     current_user: Users = Depends(oauth.get_user)):
-
     """
     Change information about employee
 
@@ -184,7 +183,6 @@ def change_employee(email: str, employee_info: UpdateEmpolyeeIn, db_conn: Sessio
 @router.delete("/deleteEmployee/{email}", status_code=status.HTTP_200_OK, summary="Delete employee from the database")
 def delete_employee(email, db_conn: Session = Depends(connect_to_db),
                     current_user: Users = Depends(oauth.get_user)):
-
     """
     Delete employee from the database
 
@@ -212,7 +210,6 @@ def delete_employee(email, db_conn: Session = Depends(connect_to_db),
 @router.put("/assignEmployee/{email}/{order_id}", response_model=UpdateOrderOut, summary="Assign employee a repair")
 def assign_employee(email: str, order_id: int, db_conn: Session = Depends(connect_to_db),
                     current_user: Users = Depends(oauth.get_user)):
-
     """
     Assign a specified employee to a specified order
 
@@ -249,3 +246,27 @@ def assign_employee(email: str, order_id: int, db_conn: Session = Depends(connec
     db_conn.commit()
 
     return result
+
+
+@router.get("/getNullOrders", response_model=List[OrderInfoOut], summary="Assign employee a repair")
+def get_null_orders(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
+    utils.validate_user(current_user, "admin")
+
+    result_query_orders = db_conn.query(Orders).filter(Orders.employee_id == None).all()
+
+    if not result_query_orders:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail='There are no new orders.')
+
+    return result_query_orders
+
+
+@router.get("/getAllEmployees", response_model = List[AllEmployeesOut])
+def get_all_employees(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
+    utils.validate_user(current_user, "admin")
+
+    result_employees = db_conn.query(Users).filter(Users.position == "employee").all()
+
+    if not result_employees:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail='There are no employees yet.')
+
+    return result_employees
