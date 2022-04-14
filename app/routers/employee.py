@@ -73,6 +73,7 @@ def get_repairs(db_conn: Session = Depends(connect_to_db), current_user: Users =
         join(user_customer, user_customer.id == Orders.customer_id). \
         join(Users, current_user.id == Orders.employee_id).\
         join(Computers, Orders.pc_id == Computers.id).\
+        order_by(Orders.id).\
         all()
 
     if not result:

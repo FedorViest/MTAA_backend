@@ -227,7 +227,7 @@ def remove_rating(rating_id: int, db_conn: Session = Depends(connect_to_db),
 
     result_query = db_conn.query(Ratings).filter(and_(Ratings.id == rating_id, Ratings.customer_id == current_user.id))
 
-    if not result_query:
+    if not result_query.first():
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Incorrect rating details")
 
     result_query.delete()

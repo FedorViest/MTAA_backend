@@ -17,7 +17,7 @@ router = APIRouter(
 )
 
 
-@router.get("/getRatings", response_model=List[AllRatingsOut], summary="Get all ratings")
+@router.get("/getRatings", response_model=List[RatingsOut], summary="Get all ratings")
 def all_ratings(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
     """
       Get a list of all the ratings
