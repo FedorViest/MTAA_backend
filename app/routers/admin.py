@@ -248,16 +248,23 @@ def assign_employee(email: str, order_id: int, db_conn: Session = Depends(connec
     return result
 
 
-@router.get("/getNullOrders", response_model=List[OrderInfoOut], summary="Assign employee a repair")
+@router.get("/getNullOrders", response_model=List[EmployeeNameOut], summary="Assign employee a repair")
 def get_null_orders(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
     utils.validate_user(current_user, "admin")
 
-    result_query_orders = db_conn.query(Orders).filter(Orders.employee_id == None).all()
+    user_employee = aliased(Users)
+    user_customer = aliased(Users)
 
-    if not result_query_orders:
+    query_result = db_conn.query(Orders, Computers,
+                                 user_customer.email.label("user_email")). \
+        join(Computers, Computers.id == Orders.pc_id). \
+        join(user_customer, user_customer.id == Orders.customer_id). \
+        filter(and_(Orders.employee_id == None)).all()
+
+    if not query_result:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail='There are no new orders.')
 
-    return result_query_orders
+    return query_result
 
 
 @router.get("/getAllEmployees", response_model = List[AllEmployeesOut])

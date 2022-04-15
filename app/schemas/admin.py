@@ -1,3 +1,5 @@
+import datetime
+
 from pydantic import BaseModel, EmailStr
 
 
@@ -87,6 +89,32 @@ class UpdateOrderOut(BaseModel):
 class AllEmployeesOut(BaseModel):
     name: str
     email: str
+
+    class Config:
+        orm_mode = True
+
+class OrderOut(BaseModel):
+    id: int
+    status: str
+    date_created: datetime.date
+    issue: str
+
+    class Config:
+        orm_mode = True
+
+
+class ComputerOut(BaseModel):
+    brand: str
+    model: str
+
+    class Config:
+        orm_mode = True
+
+
+class EmployeeNameOut(BaseModel):
+    Orders: OrderOut
+    Computers: ComputerOut
+    user_email: str
 
     class Config:
         orm_mode = True
