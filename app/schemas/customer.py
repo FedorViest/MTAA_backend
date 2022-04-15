@@ -99,3 +99,30 @@ class AddRatingOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class RatingsOut(BaseModel):
+    id: int
+    rating: float
+    comment: str
+
+    class Config:
+        orm_mode = True
+
+
+class AllRatingsOut(BaseModel):
+    Ratings: RatingsOut
+    employee_email: str
+
+    class Config:
+        orm_mode = True
+
+
+class GetComputersOut(BaseModel):
+    id: int
+    brand: str
+    model: str
+    year_made: str
+
+    class Config:
+        orm_mode = True

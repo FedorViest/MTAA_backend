@@ -209,7 +209,7 @@ def post_rating(rating_details: AddRatingIn, db_conn: Session = Depends(connect_
     return new_rating
 
 
-@router.get("/getRaings", summary="Returns all ratings of selected employee")
+@router.get("/getRatings", response_model=List[AllRatingsOut], summary="Returns all ratings of logged in customer")
 def get_ratings(db_conn: Session = Depends(connect_to_db),
                 current_user: Users = Depends(oauth.get_user)):
     """
@@ -224,10 +224,10 @@ def get_ratings(db_conn: Session = Depends(connect_to_db),
 
     validate_user(current_user, "customer")
 
-    user_employee = aliased(Users)
+    user = aliased(Users)
 
-    query_result = db_conn.query(Ratings, user_employee.email.label("employee_email")). \
-        join(user_employee, user_employee.id == Ratings.employee_id). \
+    query_result = db_conn.query(Ratings, user.email.label("employee_email")). \
+        join(user, user.id == Ratings.customer_id). \
         filter(and_(current_user.id == Ratings.customer_id, current_user.position == "customer")).all()
 
     if not query_result:
@@ -261,3 +261,22 @@ def remove_rating(rating_id: int, db_conn: Session = Depends(connect_to_db),
     db_conn.commit()
 
     return f"Successfully deleted rating id: {rating_id}", status.HTTP_200_OK
+
+
+@router.get("/getComputers", response_model=List[GetComputersOut], summary="Get all computers")
+def get_computers(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
+    """
+    Get a list of all the ratings
+
+    Required response body:
+
+    - **brand**: every computer has its own brand
+    - **model**: every brand has a model
+    - **year_made**: every computer has a year in which it has been published
+      """
+
+    utils.validate_user(current_user, "customer")
+
+    result = db_conn.query(Computers).all()
+
+    return result
