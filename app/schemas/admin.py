@@ -53,6 +53,7 @@ class AddComputerOut(BaseModel):
 
 
 class GetComputersOut(BaseModel):
+    id: int
     brand: str
     model: str
     year_made: str
