@@ -1,6 +1,7 @@
 import datetime
 
 from pydantic import BaseModel, EmailStr
+from typing import Optional
 
 
 class UserRegisterIn(BaseModel):
@@ -60,7 +61,8 @@ class ComputerOut(BaseModel):
 class EmployeeNameOut(BaseModel):
     Orders: OrderOut
     Computers: ComputerOut
-    employee_name: str
+    employee_email: Optional[str]
+    employee_name: Optional[str]
     user_email: str
 
     class Config:

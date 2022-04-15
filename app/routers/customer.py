@@ -70,7 +70,7 @@ def all_orders(db_conn: Session = Depends(connect_to_db), current_user: Users = 
 
     db_conn.query(Orders)
 
-    query_result = db_conn.query(Orders).filter(current_user.id == Orders.customer_id).all()
+    query_result = db_conn.query(Orders).filter(current_user.id == Orders.customer_id).order_by(Orders.id).all()
 
     if not query_result:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="You do not have any orders")
@@ -121,7 +121,7 @@ def post_order(order_details: AddOrderIn, db_conn: Session = Depends(connect_to_
     return result
 
 
-@router.get("/getOrders/{order_id}", response_model=EmployeeNameOut,
+@router.get("/getOrders/{order_id}",
             summary="Returns information about order with given id")
 def get_orders(order_id: int, db_conn: Session = Depends(connect_to_db),
                current_user: Users = Depends(oauth.get_user)):
@@ -148,7 +148,7 @@ def get_orders(order_id: int, db_conn: Session = Depends(connect_to_db),
     user_employee = aliased(Users)
     user_customer = aliased(Users)
 
-    query_result = db_conn.query(Orders, Computers, user_employee.name.label("employee_name"),
+    query_result = db_conn.query(Orders, Computers, user_employee.email.label("employee_email"), user_employee.name.label("employee_name"),
                                  user_customer.email.label("user_email")). \
         join(Computers, Computers.id == Orders.pc_id). \
         join(user_employee, user_employee.id == Orders.employee_id, isouter=True). \
@@ -207,6 +207,33 @@ def post_rating(rating_details: AddRatingIn, db_conn: Session = Depends(connect_
     db_conn.refresh(new_rating)
 
     return new_rating
+
+
+@router.get("/getRaings", summary="Returns all ratings of selected employee")
+def get_ratings(db_conn: Session = Depends(connect_to_db),
+                current_user: Users = Depends(oauth.get_user)):
+    """
+    Required response body:
+
+    - **customer_id**: id of logged in customer
+    - **employee_id**: id of selected employee
+    - **rating** output decimal value
+    - **comment**: output comment
+
+    """
+
+    validate_user(current_user, "customer")
+
+    user_employee = aliased(Users)
+
+    query_result = db_conn.query(Ratings, user_employee.email.label("employee_email")). \
+        join(user_employee, user_employee.id == Ratings.employee_id). \
+        filter(and_(current_user.id == Ratings.customer_id, current_user.position == "customer")).all()
+
+    if not query_result:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No ratings found")
+
+    return query_result
 
 
 @router.delete("/removeRating/{rating_id}", summary="Removes selected rating")
