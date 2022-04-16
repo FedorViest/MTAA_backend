@@ -1,5 +1,5 @@
 import datetime
-
+from typing import Optional
 from pydantic import BaseModel, EmailStr
 
 
@@ -66,13 +66,13 @@ class GetComputersOut(BaseModel):
 
 class UpdateEmpolyeeIn(BaseModel):
     name: str
-    email: EmailStr
+    email: Optional[str] = None
     skills: str
 
 
 class UpdateEmployeeOut(BaseModel):
     name: str
-    email: str
+    email: Optional[str] = None
     skills: str
 
     class Config:

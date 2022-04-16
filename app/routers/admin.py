@@ -165,7 +165,7 @@ def change_employee(email: str, employee_info: UpdateEmpolyeeIn, db_conn: Sessio
 
     utils.validate_user(current_user, "admin")
 
-    if not utils.email_valid(email) or not utils.email_valid(employee_info.email):
+    if not utils.email_valid(email):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid email")
 
     query_result = db_conn.query(Users).filter(and_(Users.email == email,
@@ -174,12 +174,19 @@ def change_employee(email: str, employee_info: UpdateEmpolyeeIn, db_conn: Sessio
     if not query_result.first():
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    result_query = db_conn.query(Users).filter(Users.email == employee_info.email)
+    if employee_info.email is not None:
+        if not utils.email_valid(employee_info.email):
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid email")
 
-    if result_query.first():
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="User with selected email already exists")
+        result_query = db_conn.query(Users).filter(Users.email == employee_info.email)
 
-    query_result.update(employee_info.dict())
+        if result_query.first():
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="User with selected email already exists")
+
+        query_result.update(employee_info.dict())
+    else:
+        query_result.update({"name": employee_info.name, "skills": employee_info.skills})
+
     db_conn.commit()
 
     return employee_info.dict()
