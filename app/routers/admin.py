@@ -37,8 +37,8 @@ def all_ratings(db_conn: Session = Depends(connect_to_db), current_user: Users =
     user_employee = aliased(Users)
     user_customer = aliased(Users)
 
-    result = db_conn.query(Ratings, user_employee.email.label("employee_email"),
-                           user_customer.email.label("customer_email")). \
+    result = db_conn.query(Ratings, user_employee.email.label("employee_email"), user_employee.name.label("employee_name"),
+                           user_customer.email.label("customer_email"), user_customer.name.label("customer_name")). \
         join(user_customer, user_customer.id == Ratings.customer_id). \
         join(user_employee, user_employee.id == Ratings.employee_id). \
         all()

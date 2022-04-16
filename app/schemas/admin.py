@@ -15,7 +15,9 @@ class AllRatingsOut(BaseModel):
 class RatingsOut(BaseModel):
     Ratings: AllRatingsOut
     employee_email: str
+    employee_name: str
     customer_email: str
+    customer_name: str
 
     class Config:
         orm_mode = True
@@ -107,6 +109,7 @@ class OrderOut(BaseModel):
 class ComputerOut(BaseModel):
     brand: str
     model: str
+    year_made: str
 
     class Config:
         orm_mode = True
