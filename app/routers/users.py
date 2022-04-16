@@ -3,7 +3,7 @@ import numpy as np
 from fastapi import APIRouter, Depends, status, HTTPException, Response, UploadFile, File
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from starlette.responses import StreamingResponse
-import cv2
+from PIL import Image
 
 from app import utils, oauth
 from app.models import Users
@@ -109,15 +109,20 @@ async def upload_picture(image: UploadFile = File(...), db_conn: Session = Depen
 
     """
 
-    path = "app/pictures/" + image.filename
+    #path = "app/pictures/" + image.filename
 
-    data = cv2.imread(path)
-    data_resized = cv2.resize(data, (100, 100))
-    result, encoded_image = cv2.imencode(".png", data_resized)
+    #data = cv2.imread(path)
+    #data_resized = cv2.resize(data, (100, 100))
+    #result, encoded_image = cv2.imencode(".png", data_resized)
+
+    data = Image.open(io.BytesIO(image.file.read()))
+    data.thumbnail((100, 100), Image.ANTIALIAS)
+    encoded_image = io.BytesIO()
+    data.save(encoded_image, format="png")
 
     result_query = db_conn.query(Users).filter(Users.id == current_user.id)
 
-    result_query.update({"profile_pic": encoded_image})
+    result_query.update({"profile_pic": encoded_image.getvalue()})
     db_conn.commit()
 
     return {"Upload image": "Successful"}
