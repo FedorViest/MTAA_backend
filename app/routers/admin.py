@@ -174,6 +174,11 @@ def change_employee(email: str, employee_info: UpdateEmpolyeeIn, db_conn: Sessio
     if not query_result.first():
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
 
+    result_query = db_conn.query(Users).filter(Users.email == employee_info.email)
+
+    if result_query.first():
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="User with selected email already exists")
+
     query_result.update(employee_info.dict())
     db_conn.commit()
 

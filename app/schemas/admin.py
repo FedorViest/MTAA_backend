@@ -89,12 +89,17 @@ class UpdateOrderOut(BaseModel):
     class Config:
         orm_mode = True
 
+
 class AllEmployeesOut(BaseModel):
     name: str
     email: str
+    registration_date: datetime.date
+    position: str
+    skills: str
 
     class Config:
         orm_mode = True
+
 
 class OrderOut(BaseModel):
     id: int
