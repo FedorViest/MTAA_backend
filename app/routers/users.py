@@ -128,8 +128,8 @@ async def upload_picture(image: UploadFile = File(...), db_conn: Session = Depen
     return {"Upload image": "Successful"}
 
 
-@router.get("/getPicture", summary="Get profile picture of logged in user")
-async def get_picture(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
+@router.get("/getPicture/{id}", summary="Get profile picture of logged in user")
+async def get_picture(id: str, db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
 
     """
         Required response body:
@@ -137,7 +137,7 @@ async def get_picture(db_conn: Session = Depends(connect_to_db), current_user: U
         - **image**: in png format
     """
 
-    result_query = db_conn.query(Users).filter(Users.id == current_user.id).first()
+    result_query = db_conn.query(Users).filter(Users.id == id).first()
 
     if not result_query:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Unknown user")
