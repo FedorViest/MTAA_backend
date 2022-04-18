@@ -112,6 +112,13 @@ def post_computer(computer_details: AddComputerIn, db_conn: Session = Depends(co
 
     utils.validate_user(current_user, "admin")
 
+    result_query = db_conn.query(Computers).filter(and_(Computers.brand == computer_details.brand,
+                                                        Computers.model == computer_details.model,
+                                                        Computers.year_made == computer_details.year_made))
+
+    if result_query.first():
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="This computer already exists")
+
     new_computer = Computers(**computer_details.dict())
 
     db_conn.add(new_computer)
