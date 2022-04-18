@@ -80,7 +80,7 @@ def post_employee(employee_details: AddEmployeeIn, db_conn: Session = Depends(co
     result_query = db_conn.query(Users).filter(Users.email == employee_details.email)
 
     if result_query.first():
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Employee with selected email already exists")
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="User with selected email already exists")
 
     new_user = Users(**employee_details.dict())
 
@@ -111,6 +111,13 @@ def post_computer(computer_details: AddComputerIn, db_conn: Session = Depends(co
       """
 
     utils.validate_user(current_user, "admin")
+
+    result_query = db_conn.query(Computers).filter(and_(Computers.brand == computer_details.brand,
+                                                        Computers.model == computer_details.model,
+                                                        Computers.year_made == computer_details.year_made))
+
+    if result_query.first():
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="This computer already exists")
 
     new_computer = Computers(**computer_details.dict())
 

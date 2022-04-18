@@ -19,7 +19,6 @@ router = APIRouter(
 @router.post("/registration", response_model=UserRegisterOut,
              summary="Registers new customer and adds information to database")
 def register(user_credentials: UserRegisterIn, db_conn: Session = Depends(connect_to_db)):
-
     """
     Required request body:
 
@@ -56,7 +55,6 @@ def register(user_credentials: UserRegisterIn, db_conn: Session = Depends(connec
 
 @router.get("/getOrders", response_model=List[OrdersOut], summary="List all orders of logged in customer")
 def all_orders(db_conn: Session = Depends(connect_to_db), current_user: Users = Depends(oauth.get_user)):
-
     """
         Required response body:
 
@@ -148,7 +146,8 @@ def get_orders(order_id: int, db_conn: Session = Depends(connect_to_db),
     user_employee = aliased(Users)
     user_customer = aliased(Users)
 
-    query_result = db_conn.query(Orders, Computers, user_employee.email.label("employee_email"), user_employee.name.label("employee_name"),
+    query_result = db_conn.query(Orders, Computers, user_employee.email.label("employee_email"),
+                                 user_employee.name.label("employee_name"),
                                  user_customer.email.label("user_email")). \
         join(Computers, Computers.id == Orders.pc_id). \
         join(user_employee, user_employee.id == Orders.employee_id, isouter=True). \
@@ -224,11 +223,13 @@ def get_ratings(db_conn: Session = Depends(connect_to_db),
 
     validate_user(current_user, "customer")
 
-    user = aliased(Users)
+    user_employee = aliased(Users)
 
-    query_result = db_conn.query(Ratings, user.email.label("employee_email")). \
-        join(user, user.id == Ratings.customer_id). \
+    query_result = db_conn.query(Ratings, user_employee.email.label("employee_email"),
+                                 user_employee.name.label("employee_name")). \
+        join(user_employee, user_employee.id == Ratings.employee_id, isouter=True). \
         filter(and_(current_user.id == Ratings.customer_id, current_user.position == "customer")).all()
+
 
     if not query_result:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No ratings found")
@@ -239,7 +240,6 @@ def get_ratings(db_conn: Session = Depends(connect_to_db),
 @router.delete("/removeRating/{rating_id}", summary="Removes selected rating")
 def remove_rating(rating_id: int, db_conn: Session = Depends(connect_to_db),
                   current_user: Users = Depends(oauth.get_user)):
-
     """
         Required parameter:
 

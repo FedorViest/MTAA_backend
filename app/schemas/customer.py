@@ -113,6 +113,7 @@ class RatingsOut(BaseModel):
 class AllRatingsOut(BaseModel):
     Ratings: RatingsOut
     employee_email: str
+    employee_name: str
 
     class Config:
         orm_mode = True
